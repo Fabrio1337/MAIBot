@@ -10,8 +10,11 @@ import org.telegram.telegrambots.meta.generics.LongPollingBot;
 @Component
 public class BotComponent implements LongPollingBot {
 
+
     private final String BOT_TOKEN = "";
     private final String BOT_NAME = "";
+
+
     @Override
     public void onUpdateReceived(Update update) {
         try

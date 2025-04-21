@@ -16,7 +16,6 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
 
 
     @Override
-    @Transactional
     public Admin getAdmin(long chatId) {
         Session session = sessionFactory.getCurrentSession();
         Admin admin = session.createQuery("from Admin admin where userId= :chatId", Admin.class)
@@ -67,49 +66,42 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
     }
 
     @Override
-    @Transactional
     public void setAdmin(Admin admin) {
         Session session = sessionFactory.getCurrentSession();
         session.merge(admin);
     }
 
     @Override
-    @Transactional
     public void setSubject(Subject subject) {
         Session session = sessionFactory.getCurrentSession();
         session.merge(subject);
     }
 
     @Override
-    @Transactional
     public void setUser(User user) {
         Session session = sessionFactory.getCurrentSession();
         session.merge(user);
     }
 
     @Override
-    @Transactional
     public void setGroup(MaiGroup maiGroup) {
         Session session = sessionFactory.getCurrentSession();
         session.merge(maiGroup);
     }
 
     @Override
-    @Transactional
     public void setMailing(Mailing mailing) {
         Session session = sessionFactory.getCurrentSession();
         session.merge(mailing);
     }
 
     @Override
-    @Transactional
     public void setHomework(Homework homework) {
         Session session = sessionFactory.getCurrentSession();
         session.merge(homework);
     }
 
     @Override
-    @Transactional
     public void setSchedule(Schedule schedule) {
         Session session = sessionFactory.getCurrentSession();
         session.merge(schedule);
