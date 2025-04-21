@@ -1,10 +1,17 @@
 package org.telegramBotStructure.DatabaseDAO;
 
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.telegramBotStructure.entity.*;
 
 @Repository
 public class DatabaseMethodsImpl implements DatabaseMethods{
+
+    @Autowired
+    private SessionFactory sessionFactory;
+
+
     @Override
     public Admin getAdmin(long chatId) {
         return null;
