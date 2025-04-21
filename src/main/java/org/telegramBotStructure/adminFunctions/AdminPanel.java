@@ -1,8 +1,19 @@
 package org.telegramBotStructure.adminFunctions;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegramBotStructure.DatabaseDAO.DatabaseMethods;
 
+@Service
 public class AdminPanel implements AdminCommands{
+
+    private final DatabaseMethods databaseMethods;
+
+    @Autowired
+    public AdminPanel(DatabaseMethods databaseMethods) {
+        this.databaseMethods = databaseMethods;
+    }
 
     @Override
     public SendMessage adminCommands() {

@@ -1,7 +1,9 @@
 package org.telegramBotStructure.DatabaseDAO;
 
+import org.springframework.stereotype.Repository;
 import org.telegramBotStructure.entity.*;
 
+@Repository
 public class DatabaseMethodsImpl implements DatabaseMethods{
     @Override
     public Admin getAdmin(long chatId) {
