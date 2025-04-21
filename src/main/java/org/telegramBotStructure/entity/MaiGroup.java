@@ -17,20 +17,23 @@ public class MaiGroup {
     @Column(name = "mai_group")
     private String group;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn (name = "user_group")
+    @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
+            mappedBy = "maiGroup", fetch = FetchType.EAGER)
     private List<User> users;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "mai_group")
+    @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
+            mappedBy = "maiGroup",
+            fetch = FetchType.EAGER)
     private List<Subject> subjects;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "mai_group")
+    @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
+            mappedBy = "maiGroup",
+            fetch = FetchType.EAGER)
     private List<Mailing> mailings;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "group_id")
+    @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
+            mappedBy = "maiGroup",
+            fetch = FetchType.EAGER)
     private List<Schedule> schedules;
 
 
@@ -84,6 +87,8 @@ public class MaiGroup {
         this.schedules = schedules;
     }
 
+
+
     @Override
     public String toString() {
         return "MaiGroup{" +
@@ -95,4 +100,5 @@ public class MaiGroup {
                 ", schedules=" + schedules +
                 '}';
     }
+
 }

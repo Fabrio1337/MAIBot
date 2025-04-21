@@ -15,6 +15,11 @@ public class Homework {
     @Column(name = "homework")
     private String homework;
 
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
+            fetch = FetchType.LAZY)
+    @JoinColumn(name = "subject_id")
+    private Subject subject;
+
     public Homework() {}
 
     public long getId() {
@@ -31,6 +36,14 @@ public class Homework {
 
     public void setHomework(String homework) {
         this.homework = homework;
+    }
+
+    public Subject getSubject() {
+        return subject;
+    }
+
+    public void setSubject(Subject subject) {
+        this.subject = subject;
     }
 
     @Override

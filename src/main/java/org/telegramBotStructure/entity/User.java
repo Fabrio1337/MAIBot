@@ -14,6 +14,11 @@ public class User {
     @Column(name = "user_id")
     private long userId;
 
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
+            fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_group")
+    private MaiGroup maiGroup;
+
     public User(){}
 
     public long getId() {
@@ -30,6 +35,14 @@ public class User {
 
     public void setUserId(long userId) {
         this.userId = userId;
+    }
+
+    public MaiGroup getMaiGroup() {
+        return maiGroup;
+    }
+
+    public void setMaiGroup(MaiGroup maiGroup) {
+        this.maiGroup = maiGroup;
     }
 
     @Override

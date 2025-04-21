@@ -16,13 +16,17 @@ public class Subject {
     @Column(name = "subject_name")
     private String subjectName;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "subject_id")
+    @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
+            mappedBy = "subject",fetch = FetchType.EAGER)
     private List<Homework> homeworks;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "subject_id")
+    @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
+            mappedBy = "subject",fetch = FetchType.EAGER)
     private List<Schedule> schedules;
+
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST})
+    @JoinColumn(name = "mai_group")
+    private MaiGroup maiGroup;
 
     public Subject() {}
 
@@ -42,20 +46,38 @@ public class Subject {
         this.subjectName = subjectName;
     }
 
-    @Override
-    public String toString() {
-        return "Subject{" +
-                "id=" + id +
-                ", subjectName='" + subjectName + '\'' +
-                ", homeworks=" + homeworks +
-                '}';
-    }
-
     public List<Homework> getHomeworks() {
         return homeworks;
     }
 
     public void setHomeworks(List<Homework> homeworks) {
         this.homeworks = homeworks;
+    }
+
+    public List<Schedule> getSchedules() {
+        return schedules;
+    }
+
+    public void setSchedules(List<Schedule> schedules) {
+        this.schedules = schedules;
+    }
+
+    public MaiGroup getMaiGroup() {
+        return maiGroup;
+    }
+
+    public void setMaiGroup(MaiGroup maiGroup) {
+        this.maiGroup = maiGroup;
+    }
+
+    @Override
+    public String toString() {
+        return "Subject{" +
+                "id=" + id +
+                ", subjectName='" + subjectName + '\'' +
+                ", homeworks=" + homeworks +
+                ", schedules=" + schedules +
+                ", maiGroup=" + maiGroup +
+                '}';
     }
 }

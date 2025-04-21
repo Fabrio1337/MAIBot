@@ -20,6 +20,16 @@ public class Schedule {
     @Column(name = "week_type")
     private short weekType;
 
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
+            fetch = FetchType.LAZY)
+    @JoinColumn(name = "subject_id")
+    private Subject subject;
+
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
+            fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_id")
+    private MaiGroup maiGroup;
+
     public Schedule() {}
 
     public long getId() {
@@ -54,6 +64,22 @@ public class Schedule {
         this.weekType = weekType;
     }
 
+    public Subject getSubject() {
+        return subject;
+    }
+
+    public void setSubject(Subject subject) {
+        this.subject = subject;
+    }
+
+    public MaiGroup getMaiGroup() {
+        return maiGroup;
+    }
+
+    public void setMaiGroup(MaiGroup maiGroup) {
+        this.maiGroup = maiGroup;
+    }
+
     @Override
     public String toString() {
         return "Schedule{" +
@@ -61,6 +87,8 @@ public class Schedule {
                 ", classroomId=" + classroomId +
                 ", isLecture=" + isLecture +
                 ", weekType=" + weekType +
+                ", subject=" + subject +
+                ", maiGroup=" + maiGroup +
                 '}';
     }
 }

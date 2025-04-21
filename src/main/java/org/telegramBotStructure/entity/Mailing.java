@@ -14,6 +14,10 @@ public class Mailing {
     @Column(name = "message")
     private String message;
 
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
+            fetch = FetchType.EAGER)
+    private MaiGroup maiGroup;
+
     public Mailing() {}
 
     public long getId() {
@@ -30,6 +34,14 @@ public class Mailing {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public MaiGroup getMaiGroup() {
+        return maiGroup;
+    }
+
+    public void setMaiGroup(MaiGroup maiGroup) {
+        this.maiGroup = maiGroup;
     }
 
     @Override
