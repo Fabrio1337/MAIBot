@@ -18,22 +18,22 @@ public class MaiGroup {
     private String group;
 
     @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
-            mappedBy = "maiGroup", fetch = FetchType.EAGER)
+            mappedBy = "maiGroup", fetch = FetchType.LAZY)
     private List<User> users;
 
     @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
             mappedBy = "maiGroup",
-            fetch = FetchType.EAGER)
+            fetch = FetchType.LAZY)
     private List<Subject> subjects;
 
     @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
             mappedBy = "maiGroup",
-            fetch = FetchType.EAGER)
+            fetch = FetchType.LAZY)
     private List<Mailing> mailings;
 
     @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
             mappedBy = "maiGroup",
-            fetch = FetchType.EAGER)
+            fetch = FetchType.LAZY)
     private List<Schedule> schedules;
 
 

@@ -16,8 +16,7 @@ public class Weekday {
     @Column(name = "day_name")
     private String day;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "weekday_id")
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "weekdayId", fetch = FetchType.LAZY)
     private List<Schedule> schedules;
 
     public Weekday() {}

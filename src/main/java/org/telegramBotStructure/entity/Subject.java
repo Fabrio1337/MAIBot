@@ -17,14 +17,14 @@ public class Subject {
     private String subjectName;
 
     @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
-            mappedBy = "subject",fetch = FetchType.EAGER)
+            mappedBy = "subject",fetch = FetchType.LAZY)
     private List<Homework> homeworks;
 
     @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
-            mappedBy = "subject",fetch = FetchType.EAGER)
+            mappedBy = "subject",fetch = FetchType.LAZY)
     private List<Schedule> schedules;
 
-    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST})
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name = "mai_group")
     private MaiGroup maiGroup;
 

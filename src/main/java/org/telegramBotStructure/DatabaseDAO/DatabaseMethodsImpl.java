@@ -37,11 +37,17 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
 
     @Override
     public User getUser(long chatId) {
-        return null;
+        Session session = sessionFactory.getCurrentSession();
+        User user = session.createQuery("from User user where userId= :chatId", User.class)
+                .setParameter("chatId",chatId)
+                .uniqueResult();
+        return user;
     }
 
     @Override
     public MaiGroup getGroup(long chatId) {
+        Session session = sessionFactory.getCurrentSession();
+
         return null;
     }
 

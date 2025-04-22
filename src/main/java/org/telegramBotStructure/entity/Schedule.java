@@ -11,6 +11,11 @@ public class Schedule {
     @Column(name = "id")
     private long id;
 
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
+            fetch = FetchType.EAGER)
+    @JoinColumn(name = "weekday_id")
+    private Weekday weekdayId;
+
     @Column(name = "classroom_id")
     private int classroomId;
 
@@ -21,12 +26,12 @@ public class Schedule {
     private short weekType;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
-            fetch = FetchType.LAZY)
+            fetch = FetchType.EAGER)
     @JoinColumn(name = "subject_id")
     private Subject subject;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
-            fetch = FetchType.LAZY)
+            fetch = FetchType.EAGER)
     @JoinColumn(name = "group_id")
     private MaiGroup maiGroup;
 
@@ -78,6 +83,14 @@ public class Schedule {
 
     public void setMaiGroup(MaiGroup maiGroup) {
         this.maiGroup = maiGroup;
+    }
+
+    public Weekday getWeekdayId() {
+        return weekdayId;
+    }
+
+    public void setWeekdayId(Weekday weekdayId) {
+        this.weekdayId = weekdayId;
     }
 
     @Override
