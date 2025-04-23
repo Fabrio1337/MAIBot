@@ -61,7 +61,7 @@ public class DatabaseMethodsImplTest {
     public void testSetAndGetUser() {
         // Сначала создаем группу, так как user_group не может быть NULL
         MaiGroup group = new MaiGroup("М8О-тест-группа");
-        session.persist(group);
+        databaseMethods.setGroup(group);
         session.flush();
 
         // Создаем пользователя и связываем с группой
@@ -81,7 +81,7 @@ public class DatabaseMethodsImplTest {
     public void testMailingIntegration() {
         // Создаем группу
         MaiGroup group = new MaiGroup("М8О-211Б-21");
-        session.persist(group);
+        databaseMethods.setGroup(group);
         session.flush();
 
         // Создаем и прикрепляем рассылку к группе
@@ -120,11 +120,11 @@ public class DatabaseMethodsImplTest {
     public void testScheduleIntegration() {
         // Создаем группу
         MaiGroup group = new MaiGroup("М8О-212Б-21");
-        session.persist(group);
+        databaseMethods.setGroup(group);
 
         // Создаем предмет
         Subject subject = new Subject("Физика");
-        session.persist(subject);
+        databaseMethods.setSubject(subject);
         session.flush();
 
         // Получаем день недели
@@ -150,7 +150,7 @@ public class DatabaseMethodsImplTest {
     public void testGroupUserIntegration() {
         // Создаем группу
         MaiGroup group = new MaiGroup("М8О-213Б-21");
-        session.persist(group);
+        databaseMethods.setGroup(group);
         session.flush();
 
         // Создаем пользователя и сразу связываем с группой
@@ -169,7 +169,7 @@ public class DatabaseMethodsImplTest {
     public void testComplexGroupIntegration() {
         // Создаем группу и сохраняем её сначала
         MaiGroup group = new MaiGroup("М8О-214Б-21");
-        session.persist(group);
+        databaseMethods.setGroup(group);
         session.flush();
 
         // Создаем пользователя и связываем с группой
@@ -249,7 +249,7 @@ public class DatabaseMethodsImplTest {
     public void testMultipleMailingsForGroup() {
         // Создаем группу
         MaiGroup group = new MaiGroup("М8О-215Б-21");
-        session.persist(group);
+        databaseMethods.setGroup(group);
         session.flush();
 
         // Создаем несколько рассылок для одной группы
