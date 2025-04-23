@@ -20,6 +20,10 @@ public class Mailing {
 
     public Mailing() {}
 
+    public Mailing(String message) {
+        this.message = message;
+    }
+
     public long getId() {
         return id;
     }

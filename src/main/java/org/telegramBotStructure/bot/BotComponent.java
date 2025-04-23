@@ -24,7 +24,7 @@ public class BotComponent implements LongPollingBot {
 
             }
         }
-        catch (TelegramApiException e)
+        catch (Exception e)
         {
 
         }

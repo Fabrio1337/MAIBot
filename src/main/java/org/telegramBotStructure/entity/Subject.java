@@ -2,6 +2,7 @@ package org.telegramBotStructure.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -18,17 +19,41 @@ public class Subject {
 
     @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
             mappedBy = "subject",fetch = FetchType.LAZY)
-    private List<Homework> homeworks;
+    private List<Homework> homeworks = new ArrayList<>();;
 
     @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
-            mappedBy = "subject",fetch = FetchType.LAZY)
-    private List<Schedule> schedules;
-
-    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
-    @JoinColumn(name = "mai_group")
-    private MaiGroup maiGroup;
+            mappedBy = "subject",fetch = FetchType.EAGER)
+    private List<Schedule> schedules = new ArrayList<>();;
 
     public Subject() {}
+
+    public Subject(String subjectName) {
+        this.subjectName = subjectName;
+    }
+
+    public void addHomework(Homework homework) {
+        if (homeworks == null) homeworks = new ArrayList<Homework>();
+        homeworks.add(homework);
+
+        homework.setSubject(this);
+    }
+
+    public void addSchedule(Schedule schedule) {
+        if (schedules == null) schedules = new ArrayList<>();
+        schedules.add(schedule);
+
+        schedule.setSubject(this);
+    }
+
+    public void removeHomework(Homework homework) {
+        if(homeworks == null) return;
+        homeworks.remove(homework);
+    }
+
+    public void removeSchedule(Schedule schedule) {
+        if(schedules == null) return;
+        schedules.remove(schedule);
+    }
 
     public long getId() {
         return id;
@@ -62,14 +87,6 @@ public class Subject {
         this.schedules = schedules;
     }
 
-    public MaiGroup getMaiGroup() {
-        return maiGroup;
-    }
-
-    public void setMaiGroup(MaiGroup maiGroup) {
-        this.maiGroup = maiGroup;
-    }
-
     @Override
     public String toString() {
         return "Subject{" +
@@ -77,7 +94,6 @@ public class Subject {
                 ", subjectName='" + subjectName + '\'' +
                 ", homeworks=" + homeworks +
                 ", schedules=" + schedules +
-                ", maiGroup=" + maiGroup +
                 '}';
     }
 }

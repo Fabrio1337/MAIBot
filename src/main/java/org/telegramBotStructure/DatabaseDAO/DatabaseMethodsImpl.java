@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegramBotStructure.entity.*;
 
+import java.util.List;
+
 @Repository
 public class DatabaseMethodsImpl implements DatabaseMethods{
 
@@ -31,44 +33,54 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
     }
 
     @Override
-    public Subject getSubject(String subjectName) {
-        return null;
+    public Subject getSubject(String subject) {
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery("from Subject subject where subject.subjectName= :subject", Subject.class)
+                .setParameter("subject", subject)
+                .uniqueResult();
     }
 
     @Override
     public User getUser(long chatId) {
         Session session = sessionFactory.getCurrentSession();
-        User user = session.createQuery("from User user where userId= :chatId", User.class)
+        return session.createQuery("from User user where userId= :chatId", User.class)
                 .setParameter("chatId",chatId)
                 .uniqueResult();
-        return user;
+
     }
 
     @Override
-    public MaiGroup getGroup(long chatId) {
+    public List<Mailing> getMailings(String groupName) {
         Session session = sessionFactory.getCurrentSession();
-
-        return null;
-    }
-
-    @Override
-    public Mailing getMailing(String group) {
-        return null;
+        return session.createQuery("from Mailing mailing where mailing.maiGroup.group= :groupId", Mailing.class)
+                .setParameter("groupId", groupName)
+                .list();
     }
 
     @Override
     public Weekday getWeekday(String day) {
-        return null;
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery("from Weekday weekday where weekday.day= :day", Weekday.class).setParameter("day", day)
+                .uniqueResult();
+    }
+
+
+
+    @Override
+    public List<Homework> getHomeworks(String subjectName)
+    {
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery("from Homework homework where homework.subject.id= :subjectName", Homework.class)
+                .setParameter("subjectName", subjectName)
+                .list();
     }
 
     @Override
-    public Homework getHomework(String homework) {
-        return null;
-    }
-
-    @Override
-    public Schedule getSchedule(long id) {
-        return null;
+    public Schedule getSchedule(String group) {
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery("from Schedule schedule where schedule.maiGroup.id= :group", Schedule.class)
+                .setParameter("group", group)
+                .uniqueResult();
     }
 
     @Override

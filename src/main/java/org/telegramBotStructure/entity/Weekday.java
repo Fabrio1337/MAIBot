@@ -2,6 +2,7 @@ package org.telegramBotStructure.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -17,9 +18,24 @@ public class Weekday {
     private String day;
 
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "weekdayId", fetch = FetchType.LAZY)
-    private List<Schedule> schedules;
+    private List<Schedule> schedules = new ArrayList<>();;
 
     public Weekday() {}
+
+    public Weekday(String day) {
+        this.day = day;
+    }
+
+    public void addSchedule(Schedule schedule) {
+        if (schedules == null) schedules = new ArrayList<Schedule>();
+        schedules.add(schedule);
+
+        schedule.setWeekdayId(this);
+    }
+    public void removeSchedule(Schedule schedule) {
+        if (schedules == null) return;
+        schedules.remove(schedule);
+    }
 
     public int getId() {
         return id;

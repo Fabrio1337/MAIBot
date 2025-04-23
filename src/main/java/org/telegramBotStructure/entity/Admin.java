@@ -19,6 +19,11 @@ public class Admin {
 
     public Admin() {}
 
+    public Admin(long userId, boolean is_set_admins) {
+        this.userId = userId;
+        this.is_set_admins = is_set_admins;
+    }
+
     public long getId() {
         return id;
     }

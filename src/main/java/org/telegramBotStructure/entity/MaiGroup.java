@@ -3,6 +3,7 @@ package org.telegramBotStructure.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,25 +20,63 @@ public class MaiGroup {
 
     @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
             mappedBy = "maiGroup", fetch = FetchType.LAZY)
-    private List<User> users;
+    private List<User> users = new ArrayList<>(); ;
 
     @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
             mappedBy = "maiGroup",
             fetch = FetchType.LAZY)
-    private List<Subject> subjects;
+    private List<Mailing> mailings = new ArrayList<>();;
 
     @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
             mappedBy = "maiGroup",
             fetch = FetchType.LAZY)
-    private List<Mailing> mailings;
-
-    @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
-            mappedBy = "maiGroup",
-            fetch = FetchType.LAZY)
-    private List<Schedule> schedules;
+    private List<Schedule> schedules = new ArrayList<>();;
 
 
     public MaiGroup() {}
+
+    public MaiGroup(String group) {
+        this.group = group;
+    }
+
+    public void addUserToGroup(User user) {
+        if(users == null)  users = new ArrayList<User>();
+        users.add(user);
+
+        user.setMaiGroup(this);
+    }
+
+    public void removeUserFromGroup(User user) {
+        if(users == null) return;
+        users.remove(user);
+        user.setMaiGroup(null);
+    }
+
+    public void addMailing(Mailing mailing) {
+        if (mailings == null) mailings = new ArrayList<>();
+        mailings.add(mailing);
+
+        mailing.setMaiGroup(this);
+    }
+
+    public void removeMailing(Mailing mailing) {
+        if (mailings == null) return;
+        mailings.remove(mailing);
+    }
+
+    public void addSchedule(Schedule schedule) {
+        if (schedules == null) schedules = new ArrayList<>();
+        schedules.add(schedule);
+
+        schedule.setMaiGroup(this);
+    }
+
+    public void removeSchedule(Schedule schedule) {
+        if (schedules == null) return;
+        schedules.remove(schedule);
+    }
+
+
 
     public long getId() {
         return id;
@@ -61,14 +100,6 @@ public class MaiGroup {
 
     public void setUsers(List<User> users) {
         this.users = users;
-    }
-
-    public List<Subject> getSubjects() {
-        return subjects;
-    }
-
-    public void setSubjects(List<Subject> subjects) {
-        this.subjects = subjects;
     }
 
     public List<Mailing> getMailings() {
@@ -95,7 +126,6 @@ public class MaiGroup {
                 "id=" + id +
                 ", group='" + group + '\'' +
                 ", users=" + users +
-                ", subjects=" + subjects +
                 ", mailings=" + mailings +
                 ", schedules=" + schedules +
                 '}';

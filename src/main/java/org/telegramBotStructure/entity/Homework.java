@@ -22,6 +22,11 @@ public class Homework {
 
     public Homework() {}
 
+    public Homework(String homework, Subject subject) {
+        this.homework = homework;
+        this.subject = subject;
+    }
+
     public long getId() {
         return id;
     }
