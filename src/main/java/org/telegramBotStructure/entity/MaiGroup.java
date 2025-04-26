@@ -32,11 +32,23 @@ public class MaiGroup {
             fetch = FetchType.LAZY)
     private List<Schedule> schedules = new ArrayList<>();;
 
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @JoinTable(name = "subject_group_link",
+            joinColumns = @JoinColumn(name = "group_id"),
+            inverseJoinColumns = @JoinColumn(name = "subject_id")
+    )
+    private List<Subject> subjects = new ArrayList<>();
 
     public MaiGroup() {}
 
     public MaiGroup(String group) {
         this.group = group;
+    }
+
+    public void addSubjectToGroup(Subject subject) {
+        if(subjects == null) subjects = new ArrayList<>();
+        if(!subjects.contains(subject)) subjects.add(subject);
+
     }
 
     public void addUserToGroup(User user) {

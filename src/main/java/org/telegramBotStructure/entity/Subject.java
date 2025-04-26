@@ -23,7 +23,15 @@ public class Subject {
 
     @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
             mappedBy = "subject",fetch = FetchType.EAGER)
-    private List<Schedule> schedules = new ArrayList<>();;
+    private List<Schedule> schedules = new ArrayList<>();
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @JoinTable(name = "subject_group_link",
+            joinColumns = @JoinColumn(name = "subject_id"),
+            inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
+    private List<MaiGroup> maiGroups = new ArrayList<>();
+
 
     public Subject() {}
 
@@ -31,8 +39,13 @@ public class Subject {
         this.subjectName = subjectName;
     }
 
+    public void addGroup(MaiGroup maiGroup) {
+        if(maiGroups == null) maiGroups = new ArrayList<>();
+        if(!maiGroups.contains(maiGroup)) maiGroups.add(maiGroup);
+    }
+
     public void addHomework(Homework homework) {
-        if (homeworks == null) homeworks = new ArrayList<Homework>();
+        if (homeworks == null) homeworks = new ArrayList<>();
         homeworks.add(homework);
 
         homework.setSubject(this);
