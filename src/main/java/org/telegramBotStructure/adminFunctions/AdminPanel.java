@@ -5,14 +5,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegramBotStructure.DatabaseDAO.DatabaseMethods;
+import org.telegramBotStructure.bot.responses.user.buttons.UserButtonsInterface;
+import org.telegramBotStructure.userFunctions.UserPanel;
 
 @Service
-public class AdminPanel implements AdminCommands{
+public class AdminPanel extends UserPanel implements AdminCommands{
 
     private final DatabaseMethods databaseMethods;
 
     @Autowired
-    public AdminPanel(DatabaseMethods databaseMethods) {
+    public AdminPanel(DatabaseMethods databaseMethods, UserButtonsInterface userButtonsInterface) {
+        super(userButtonsInterface);
         this.databaseMethods = databaseMethods;
     }
 
