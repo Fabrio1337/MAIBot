@@ -1,4 +1,4 @@
-package org.telegramBotStructure.bot.responses.admin.words;
+package org.telegramBotStructure.adminFunctions.words;
 
 import org.springframework.stereotype.Component;
 
@@ -40,5 +40,16 @@ public class AdminWords implements AdminWordsInterface {
     {
         return new ArrayList<>(Arrays.asList("/addSchedule", "addSchedule", "добавитьРасписание", "/добавитьРасписание", "добавить расписание",
                 "/removeSchedule", "removeSchedule", "удалитьРасписание", "/удалитьРасписание", "удалить расписание"));
+    }
+
+    @Override
+    public List<String> allWords() {
+        ArrayList<String> words = new ArrayList<>();
+        words.addAll(startAdminPanelWords());
+        words.addAll(addAndRemoveHomeworksWords());
+        words.addAll(addAndRemoveSubjectsWords());
+        words.addAll(addAndRemoveMailingWords());
+        words.addAll(addAndRemoveScheduleWords());
+        return words;
     }
 }

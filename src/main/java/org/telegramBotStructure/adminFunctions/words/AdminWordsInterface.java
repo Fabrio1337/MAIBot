@@ -1,4 +1,4 @@
-package org.telegramBotStructure.bot.responses.admin.words;
+package org.telegramBotStructure.adminFunctions.words;
 
 import java.util.List;
 
@@ -8,5 +8,5 @@ public interface AdminWordsInterface {
     public List<String> addAndRemoveSubjectsWords();
     public List<String> addAndRemoveMailingWords();
     public List<String> addAndRemoveScheduleWords();
-
+    public List<String> allWords();
 }

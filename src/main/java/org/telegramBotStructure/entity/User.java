@@ -21,8 +21,9 @@ public class User {
 
     public User(){}
 
-    public User(long userId) {
+    public User(long userId, MaiGroup maiGroup) {
         this.userId = userId;
+        this.maiGroup = maiGroup;
     }
 
     public long getId() {

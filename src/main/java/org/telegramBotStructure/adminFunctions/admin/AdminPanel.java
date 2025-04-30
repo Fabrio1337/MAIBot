@@ -1,12 +1,12 @@
-package org.telegramBotStructure.adminFunctions;
+package org.telegramBotStructure.adminFunctions.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegramBotStructure.DatabaseDAO.DatabaseMethods;
-import org.telegramBotStructure.bot.responses.user.buttons.UserButtonsInterface;
-import org.telegramBotStructure.userFunctions.UserPanel;
+import org.telegramBotStructure.userFunctions.buttons.UserButtonsInterface;
+import org.telegramBotStructure.userFunctions.user.UserPanel;
 
 @Service
 public class AdminPanel extends UserPanel implements AdminCommands{

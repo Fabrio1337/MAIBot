@@ -1,4 +1,4 @@
-package org.telegramBotStructure.adminFunctions;
+package org.telegramBotStructure.adminFunctions.admin;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 

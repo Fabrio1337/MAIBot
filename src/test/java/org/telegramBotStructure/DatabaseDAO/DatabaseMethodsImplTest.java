@@ -66,7 +66,7 @@ public class DatabaseMethodsImplTest {
 
         // Создаем пользователя и связываем с группой
         long userId = 987654L;
-        User user = new User(userId);
+        User user = new User();
         user.setMaiGroup(group); // Устанавливаем группу, чтобы избежать NULL в user_group
         databaseMethods.setUser(user);
 
@@ -155,7 +155,7 @@ public class DatabaseMethodsImplTest {
 
         // Создаем пользователя и сразу связываем с группой
         long userId = 555555L;
-        User user = new User(userId);
+        User user = new User();
         user.setMaiGroup(group); // Важно: устанавливаем группу до сохранения пользователя
         databaseMethods.setUser(user);
 
@@ -173,7 +173,7 @@ public class DatabaseMethodsImplTest {
         session.flush();
 
         // Создаем пользователя и связываем с группой
-        User user = new User(666666L);
+        User user = new User();
         user.setMaiGroup(group);
         databaseMethods.setUser(user);
 
