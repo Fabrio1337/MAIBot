@@ -54,7 +54,7 @@ public class UserButtons implements UserButtonsInterface{
             groups[i] = groups[i].replace("#", course);
             InlineKeyboardButton button = InlineKeyboardButton.builder()
                     .text(groups[i])
-                    .callbackData("group_" + groups[i])
+                    .callbackData(groups[i])
                     .build();
 
             row.add(button);
