@@ -1,4 +1,4 @@
-package org.telegramBotStructure.userFunctions.messages.templates.ExecutedMessages;
+package org.telegramBotStructure.userFunctions.messages.templates.executedMessages;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
