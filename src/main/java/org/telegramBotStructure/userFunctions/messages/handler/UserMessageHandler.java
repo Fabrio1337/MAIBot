@@ -45,11 +45,10 @@ public class UserMessageHandler implements UserMessageHandlerInterface {
         {
             try {
                 telegram().execute(
-                        userButtonsInterface.setGroupButtons(
-                                callbackQuery.getFrom().getId(),
-                        callbackQuery.getMessage().getMessageId(),
-                        callbackQuery.getData()
-                        )
+                    userTemplateMessagesInterface.sendAutorizeMessage(
+                            callbackQuery.getFrom().getId(),
+                            callbackQuery.getFrom().getUserName()
+                    )
                 );
             }
             catch (TelegramApiException e) {

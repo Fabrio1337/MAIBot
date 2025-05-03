@@ -64,6 +64,7 @@ public class UserButtons implements UserButtonsInterface{
                 row = new InlineKeyboardRow();
             }
         }
+
         return InlineKeyboardMarkup.builder()
                 .keyboard(rows)
                 .build();
@@ -102,7 +103,7 @@ public class UserButtons implements UserButtonsInterface{
         for (int i = 0; i < choices.length; i++) {
             InlineKeyboardButton button = InlineKeyboardButton.builder()
                     .text(choices[i])
-                    .callbackData("choice" + choices[i])
+                    .callbackData("choice_" + choices[i])
                     .build();
 
 
@@ -129,4 +130,6 @@ public class UserButtons implements UserButtonsInterface{
                 .replyMarkup(setGroupsButtons(callbackData.substring(underscoreIndex + 1)))
                 .build();
     }
+
+    //сделать метод для кнопки "назад"
 }

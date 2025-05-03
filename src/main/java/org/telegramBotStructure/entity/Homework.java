@@ -53,9 +53,6 @@ public class Homework {
 
     @Override
     public String toString() {
-        return "Homework{" +
-                "id=" + id +
-                ", homework='" + homework + '\'' +
-                '}';
+        return "Домашнее задание='" + homework + "\n";
     }
 }
