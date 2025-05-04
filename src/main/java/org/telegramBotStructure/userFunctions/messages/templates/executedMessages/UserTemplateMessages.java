@@ -1,10 +1,10 @@
-package org.telegramBotStructure.userFunctions.messages.templates.ExecutedMessages;
+package org.telegramBotStructure.userFunctions.messages.templates.executedMessages;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegramBotStructure.entity.Subject;
 import org.telegramBotStructure.userFunctions.buttons.UserButtonsInterface;
 
 @Service
@@ -17,7 +17,8 @@ public class UserTemplateMessages implements UserTemplateMessagesInterface{
     public SendMessage sendStartMessage(long chatId, String username) {
         String text = String.format("%s, Добро пожаловать в самого лучшего бота для учебы\uD83D\uDCC5!\n" +
                 "напиши /commands или /help чтобы узнать какие команды может обрабатывать бот\uD83D\uDCDD", username);
-        return SendMessage.builder().chatId(chatId).text(text).build();
+        return SendMessage.builder().chatId(chatId).text(text)
+                .replyMarkup(userButtonsInterface.setUserChoiceButtons()).build();
     }
 
     @Override
@@ -25,6 +26,15 @@ public class UserTemplateMessages implements UserTemplateMessagesInterface{
         String text = String.format("%s, Добро пожаловать в самого лучшего бота для учебы\uD83D\uDCC5!\n" +
                 "Чтобы начать использовать бота, выберите курс и группу\uD83D\uDE0A", username);
 
-        return SendMessage.builder().chatId(chatId).text(text).replyMarkup(userButtonsInterface.setWelcomeButtons()).build();
+        return SendMessage.builder().chatId(chatId).text(text)
+                .replyMarkup(userButtonsInterface.setWelcomeButtons()).build();
+    }
+
+    public SendMessage sendHomeworkMessage(long chatId, Subject subject){
+        String text = String.format("Домашние задания по предмету '%s' : "
+                + subject.getHomeworks(), subject.getSubjectName());
+
+        return SendMessage.builder().chatId(chatId).text(text).build();
+
     }
 }

@@ -4,26 +4,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 import org.telegramBotStructure.DatabaseDAO.DatabaseMethods;
-import org.telegramBotStructure.adminFunctions.messages.templates.ErrorMessages.AdminErrorMessagesInterface;
+import org.telegramBotStructure.adminFunctions.messages.templates.errorMessages.AdminErrorMessagesInterface;
 import org.telegramBotStructure.adminFunctions.words.AdminWordsInterface;
 import org.telegramBotStructure.bot.Client;
 import org.telegramBotStructure.entity.MaiGroup;
 import org.telegramBotStructure.entity.User;
 import org.telegramBotStructure.userFunctions.buttons.UserButtonsInterface;
-import org.telegramBotStructure.userFunctions.messages.templates.ExecutedMessages.UserTemplateMessagesInterface;
+import org.telegramBotStructure.userFunctions.messages.templates.executedMessages.UserTemplateMessagesInterface;
 import org.telegramBotStructure.userFunctions.words.UserWordsInterface;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
@@ -51,11 +45,10 @@ public class UserMessageHandler implements UserMessageHandlerInterface {
         {
             try {
                 telegram().execute(
-                        userButtonsInterface.setGroupButtons(
-                                callbackQuery.getFrom().getId(),
-                        callbackQuery.getMessage().getMessageId(),
-                        callbackQuery.getData()
-                        )
+                    userTemplateMessagesInterface.sendAutorizeMessage(
+                            callbackQuery.getFrom().getId(),
+                            callbackQuery.getFrom().getUserName()
+                    )
                 );
             }
             catch (TelegramApiException e) {

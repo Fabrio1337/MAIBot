@@ -1,4 +1,4 @@
-package org.telegramBotStructure.adminFunctions.messages.templates.ErrorMessages;
+package org.telegramBotStructure.adminFunctions.messages.templates.errorMessages;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 
