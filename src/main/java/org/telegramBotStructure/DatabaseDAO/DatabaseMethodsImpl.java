@@ -84,6 +84,25 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
     }
 
     @Override
+    public Holiday getHoliday(String groupName) {
+        Session session = sessionFactory.getCurrentSession();
+
+        return session.createQuery(
+                        "FROM Holiday h WHERE h.maiGroup.group = :groupName", Holiday.class)
+                .setParameter("groupName", groupName)
+                .uniqueResult();
+    }
+
+    @Override
+    public Exam getExam(String group) {
+        Session session = sessionFactory.getCurrentSession();
+
+        return session.createQuery("FROM Exam e WHERE e.maiGroup.group = :group", Exam.class)
+                .setParameter("group", group)
+                .uniqueResult();
+    }
+
+    @Override
     public void setAdmin(Admin admin) {
         Session session = sessionFactory.getCurrentSession();
         session.merge(admin);
@@ -123,5 +142,17 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
     public void setSchedule(Schedule schedule) {
         Session session = sessionFactory.getCurrentSession();
         session.merge(schedule);
+    }
+
+    @Override
+    public void setHoliday(Holiday holiday) {
+        Session session = sessionFactory.getCurrentSession();
+        session.merge(holiday);
+    }
+
+    @Override
+    public void setExam(Exam exam) {
+        Session session = sessionFactory.getCurrentSession();
+        session.merge(exam);
     }
 }

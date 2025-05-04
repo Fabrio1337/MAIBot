@@ -1,6 +1,8 @@
 package org.telegramBotStructure.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,17 +14,25 @@ public class Subject {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @Getter
+    @Setter
     private long id;
 
     @Column(name = "subject_name")
+    @Getter
+    @Setter
     private String subjectName;
 
     @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
             mappedBy = "subject",fetch = FetchType.LAZY)
+    @Getter
+    @Setter
     private List<Homework> homeworks = new ArrayList<>();;
 
     @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
             mappedBy = "subject",fetch = FetchType.EAGER)
+    @Getter
+    @Setter
     private List<Schedule> schedules = new ArrayList<>();
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
@@ -68,37 +78,6 @@ public class Subject {
         schedules.remove(schedule);
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getSubjectName() {
-        return subjectName;
-    }
-
-    public void setSubjectName(String subjectName) {
-        this.subjectName = subjectName;
-    }
-
-    public List<Homework> getHomeworks() {
-        return homeworks;
-    }
-
-    public void setHomeworks(List<Homework> homeworks) {
-        this.homeworks = homeworks;
-    }
-
-    public List<Schedule> getSchedules() {
-        return schedules;
-    }
-
-    public void setSchedules(List<Schedule> schedules) {
-        this.schedules = schedules;
-    }
 
     @Override
     public String toString() {

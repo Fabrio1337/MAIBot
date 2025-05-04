@@ -2,6 +2,8 @@ package org.telegramBotStructure.entity;
 
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "homeworks")
@@ -10,44 +12,26 @@ public class Homework {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @Getter
+    @Setter
     private long id;
 
     @Column(name = "homework")
+    @Getter
+    @Setter
     private String homework;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
             fetch = FetchType.EAGER)
     @JoinColumn(name = "subject_id")
+    @Getter
+    @Setter
     private Subject subject;
 
     public Homework() {}
 
     public Homework(String homework, Subject subject) {
         this.homework = homework;
-        this.subject = subject;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getHomework() {
-        return homework;
-    }
-
-    public void setHomework(String homework) {
-        this.homework = homework;
-    }
-
-    public Subject getSubject() {
-        return subject;
-    }
-
-    public void setSubject(Subject subject) {
         this.subject = subject;
     }
 

@@ -2,6 +2,8 @@ package org.telegramBotStructure.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,23 +15,33 @@ public class MaiGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
+    @Getter
+    @Setter
     private long id;
 
     @Column(name = "mai_group")
+    @Getter
+    @Setter
     private String group;
 
     @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
             mappedBy = "maiGroup", fetch = FetchType.LAZY)
+    @Getter
+    @Setter
     private List<User> users = new ArrayList<>(); ;
 
     @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
             mappedBy = "maiGroup",
             fetch = FetchType.LAZY)
+    @Getter
+    @Setter
     private List<Mailing> mailings = new ArrayList<>();;
 
     @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
             mappedBy = "maiGroup",
             fetch = FetchType.LAZY)
+    @Getter
+    @Setter
     private List<Schedule> schedules = new ArrayList<>();;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
@@ -37,7 +49,21 @@ public class MaiGroup {
             joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "subject_id")
     )
+    @Getter
+    @Setter
     private List<Subject> subjects = new ArrayList<>();
+
+    @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
+            mappedBy = "maiGroup",
+            fetch = FetchType.LAZY)
+    @Getter
+    @Setter
+    private List<Exam> exams = new ArrayList<>();
+
+    @OneToOne(mappedBy = "maiGroup")
+    @Getter
+    @Setter
+    private Holiday holiday;
 
     public MaiGroup() {}
 
@@ -87,50 +113,6 @@ public class MaiGroup {
         if (schedules == null) return;
         schedules.remove(schedule);
     }
-
-
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getGroup() {
-        return group;
-    }
-
-    public void setGroup(String group) {
-        this.group = group;
-    }
-
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
-    }
-
-    public List<Mailing> getMailings() {
-        return mailings;
-    }
-
-    public void setMailings(List<Mailing> mailings) {
-        this.mailings = mailings;
-    }
-
-    public List<Schedule> getSchedules() {
-        return schedules;
-    }
-
-    public void setSchedules(List<Schedule> schedules) {
-        this.schedules = schedules;
-    }
-
-
 
     @Override
     public String toString() {
