@@ -64,6 +64,13 @@ public class UserButtons implements UserButtonsInterface{
                 row = new InlineKeyboardRow();
             }
         }
+        row = new InlineKeyboardRow();
+        InlineKeyboardButton backButton = InlineKeyboardButton.builder()
+                .text("Назад")
+                .callbackData("back_to_course")
+                .build();
+        row.add(backButton);
+        rows.add(row);
 
         return InlineKeyboardMarkup.builder()
                 .keyboard(rows)
@@ -88,6 +95,15 @@ public class UserButtons implements UserButtonsInterface{
                 row = new InlineKeyboardRow();
             }
         }
+
+        row = new InlineKeyboardRow();
+        InlineKeyboardButton backButton = InlineKeyboardButton.builder()
+                .text("Назад")
+                .callbackData("back_to_menu")
+                .build();
+        row.add(backButton);
+        rows.add(row);
+
         return InlineKeyboardMarkup.builder()
                 .keyboard(rows)
                 .build();

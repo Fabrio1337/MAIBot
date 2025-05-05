@@ -4,7 +4,9 @@ import lombok.Getter;
 
 public enum UserCallbackAction {
     BACK_TO_MENU("back_to_menu"),
-    BACK_TO_SUBJECTS("back_to_subject");
+    BACK_TO_SUBJECTS("back_to_subject"),
+    BACK_TO_COURSES("back_to_course");
+
 
     @Getter
     private final String data;
