@@ -11,6 +11,8 @@ import org.telegramBotStructure.DatabaseDAO.DatabaseMethods;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegramBotStructure.adminFunctions.messages.handler.AdminMessageHandlerInterface;
 import org.telegramBotStructure.entity.Admin;
+import org.telegramBotStructure.entity.MaiGroup;
+import org.telegramBotStructure.entity.User;
 import org.telegramBotStructure.userFunctions.messages.handler.UserMessageHandlerInterface;
 
 
@@ -36,14 +38,11 @@ public class CheckingUserOrAdmin implements CheckUserOrAdmin{
                 }
             } else if (update.hasCallbackQuery()) {
                 CallbackQuery callbackQuery = update.getCallbackQuery();
-                Message message = getMessageFromCallback(callbackQuery);
-
-                if (message != null) {
-                    if (isAdmin(message.getChatId())) {
-                        adminMessageHandlerInterface.callback(callbackQuery);
-                    } else {
-                        userMessageHandlerInterface.callback(callbackQuery);
-                    }
+                System.out.println(callbackQuery.getData());
+                if (isAdmin(callbackQuery.getFrom().getId())) {
+                    adminMessageHandlerInterface.callback(callbackQuery);
+                } else {
+                    userMessageHandlerInterface.callback(callbackQuery);
                 }
             }
         } catch (Exception e) {
@@ -51,15 +50,9 @@ public class CheckingUserOrAdmin implements CheckUserOrAdmin{
         }
     }
 
-    private Message getMessageFromCallback(CallbackQuery callbackQuery) {
-        MaybeInaccessibleMessage maybeMessage = callbackQuery.getMessage();
-        if (maybeMessage instanceof Message) {
-            return (Message) maybeMessage;
-        }
-        return null;
-    }
 
     @Override
+    @Transactional
     public boolean isAdmin(long chatId) {
         Admin admin = databaseMethods.getAdmin(chatId);
         return admin != null;

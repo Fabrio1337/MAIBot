@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -43,67 +46,138 @@ public class UserMessageHandler implements UserMessageHandlerInterface {
 
         if(callbackQuery.getData().matches("^course_\\d+$"))
         {
-            try {
-                telegram().execute(
-                    userTemplateMessagesInterface.sendAutorizeMessage(
-                            callbackQuery.getFrom().getId(),
-                            callbackQuery.getFrom().getUserName()
-                    )
-                );
-            }
-            catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
+            setCourse(callbackQuery);
         }
         else if (callbackQuery.getData().matches("^МСО-[1-5]\\d{2}(Бк|Б|C)$")) {
-            try {
-                registerUser(callbackQuery);
-                telegram().execute(
-                        userTemplateMessagesInterface.sendAutorizeMessage(
-                                callbackQuery.getFrom().getId(),
-                                callbackQuery.getFrom().getUserName()
-                        )
-                );
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
-            }
+           setGroup(callbackQuery);
         }
+        else if (callbackQuery.getData().equals("back_to_course"))
+        {
+            returnToCourse(callbackQuery);
+        }
+        else if (callbackQuery.getData().equals("back_to_menu"))
+        {
+            returnToMenu(callbackQuery);
+        }
+        else if (callbackQuery.getData().equals("Расписание"))
+        {
+
+        }
+        else if (callbackQuery.getData().equals("ДЗ"))
+        {
+
+        }
+        else if (callbackQuery.getData().equals("Информация"))
+        {
+
+        }
+
     }
 
     @Override
     public void message(Message message) {
-        if(adminWordsInterface.allWords().contains(message.getText())) {
-            try {
+        try
+        {
+            if(adminWordsInterface.allWords().contains(message.getText())) {
                 telegram().execute(adminErrorMessagesInterface.userIsNotAdmin(message.getChatId()));
-            } catch (TelegramApiException e)
+            }
+            else if(userWordsInterface.startWords().contains(message.getText()))
             {
-                e.printStackTrace();
+                sendStartMessage(message);
+            }
+            else if (userWordsInterface.userWords().contains(message.getText()))
+            {
+                telegram().execute(userTemplateMessagesInterface.sendCommandsMessage(message.getChatId(), message.getFrom().getUserName()));
+            }
+            else if (userWordsInterface.scheduleWords().contains(message.getText()))
+            {
+                telegram().execute(userTemplateMessagesInterface.
+                        sendScheduleMessage(message.getChatId(), databaseMethods.getUser(message.getChatId()).getMaiGroup()));
+            }
+            else
+            {
+                telegram().execute(userTemplateMessagesInterface.sendCommandsMessage(message.getChatId(), message.getFrom().getUserName()));
             }
         }
-        else if(userWordsInterface.startWords().contains(message.getText()))
+        catch (TelegramApiException e)
         {
-
-        }
-        else if (userWordsInterface.userWords().contains(message.getText()))
-        {
-
-        }
-        else if (userWordsInterface.scheduleWords().contains(message.getText()))
-        {
-
-        }
-        else if (userWordsInterface.homeWorkWords().contains(message.getText()))
-        {
-
+            e.printStackTrace();
         }
     }
 
+    @Override
+    public void setCourse(CallbackQuery callbackQuery) {
+        try {
+            telegram().execute(
+                    userButtonsInterface.setGroupButtons(
+                            callbackQuery.getMessage().getChatId(),
+                            callbackQuery.getMessage().getMessageId(),
+                            callbackQuery.getData()
+                    )
+            );
+        }
+        catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void setGroup(CallbackQuery callbackQuery) {
+        try {
+            registerUser(callbackQuery);
+            telegram().execute(
+                    DeleteMessage.builder()
+                            .chatId(callbackQuery.getFrom().getId())
+                            .messageId(callbackQuery.getMessage().getMessageId())
+                            .build()
+            );
+            telegram().execute(
+                    userTemplateMessagesInterface.sendStartMessage(
+                            callbackQuery.getFrom().getId(),
+                            callbackQuery.getFrom().getUserName()
+                    )
+            );
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void returnToCourse(CallbackQuery callbackQuery) {
+        try {
+            telegram().execute(userButtonsInterface.returnCoursesButtons(
+                            callbackQuery.getMessage().getChatId(),
+                            callbackQuery.getMessage().getMessageId()
+                    )
+            );
+        }
+        catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void returnToMenu(CallbackQuery callbackQuery) {
+        try
+        {
+            telegram().execute(userButtonsInterface.returnToMenuButtons(
+                    callbackQuery.getMessage().getChatId(),
+                    callbackQuery.getMessage().getMessageId()
+            ));
+        }
+        catch (TelegramApiException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void sendStartMessage(Message message) {
         if(databaseMethods.getUser(message.getChatId()) == null)
         {
             try
             {
-                telegram().execute(userTemplateMessagesInterface.sendAutorizeMessage(message.getChatId(), message.getFrom().getFirstName()));
+                telegram().execute(userTemplateMessagesInterface.sendAutorizeMessage(message.getChatId(), message.getFrom().getUserName()));
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
@@ -111,18 +185,18 @@ public class UserMessageHandler implements UserMessageHandlerInterface {
         else {
             try
             {
-                telegram().execute(userTemplateMessagesInterface.sendStartMessage(message.getChatId(), message.getFrom().getFirstName()));
+                telegram().execute(userTemplateMessagesInterface.sendStartMessage(message.getChatId(), message.getFrom().getUserName()));
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void registerUser(CallbackQuery callbackQuery) {
+    @Transactional
+    protected void registerUser(CallbackQuery callbackQuery) {
         MaiGroup maiGroup = new MaiGroup(callbackQuery.getData());
         User user = new User(callbackQuery.getFrom().getId(), maiGroup);
         databaseMethods.setUser(user);
-        databaseMethods.setGroup(maiGroup);
     }
 
     private TelegramClient telegram() {

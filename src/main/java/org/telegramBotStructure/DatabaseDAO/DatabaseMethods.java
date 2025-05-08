@@ -17,7 +17,6 @@ public interface DatabaseMethods {
     public void setAdmin(Admin admin);
     public void setSubject(Subject subject);
     public void setUser(User user);
-    public void setGroup(MaiGroup maiGroup);
     public void setMailing(Mailing mailing);
     public void setHomework(Homework homework);
     public void setSchedule(Schedule schedule);

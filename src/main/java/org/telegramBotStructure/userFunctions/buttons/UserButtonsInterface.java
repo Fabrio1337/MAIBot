@@ -12,6 +12,7 @@ public interface UserButtonsInterface {
     public InlineKeyboardMarkup setSubjectButtons(List<Subject> subjects);
     public InlineKeyboardMarkup setUserChoiceButtons();
     public EditMessageReplyMarkup setGroupButtons(long chatId, int messageId, String callbackData);
-
+    public EditMessageReplyMarkup returnCoursesButtons(long chatId, int messageId);
+    public EditMessageReplyMarkup returnToMenuButtons(long chatId, int messageId);
 
 }

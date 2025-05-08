@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.telegramBotStructure.entity.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 public class DatabaseMethodsImpl implements DatabaseMethods{
@@ -114,16 +115,41 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
         session.merge(subject);
     }
 
+
     @Override
     public void setUser(User user) {
         Session session = sessionFactory.getCurrentSession();
-        session.merge(user);
-    }
 
-    @Override
-    public void setGroup(MaiGroup maiGroup) {
-        Session session = sessionFactory.getCurrentSession();
-        session.merge(maiGroup);
+        // Проверяем, есть ли у пользователя группа
+        if (user.getMaiGroup() != null) {
+            MaiGroup groupToCheck = user.getMaiGroup();
+            MaiGroup existingGroup = null;
+
+            // Если у группы задан ID, пробуем найти по ID
+            if (Objects.equals(groupToCheck.getId(), null)) {
+                existingGroup = session.get(MaiGroup.class, groupToCheck.getId());
+            }
+            // Если ID не задан или группа не найдена по ID, ищем по уникальному полю mai_group
+            else if (groupToCheck.getGroup() != null && !groupToCheck.getGroup().isEmpty()) {
+                try {
+                    String hql = "FROM MaiGroup WHERE group = :groupName";
+                    existingGroup = session.createQuery(hql, MaiGroup.class)
+                            .setParameter("groupName", groupToCheck.getGroup())
+                            .uniqueResult();
+                } catch (Exception e) {
+                    // Логируем ошибку, но продолжаем выполнение
+                    System.err.println("Ошибка при поиске группы: " + e.getMessage());
+                }
+            }
+
+            // Если группа существует, используем её вместо новой
+            if (existingGroup != null) {
+                user.setMaiGroup(existingGroup);
+            }
+        }
+
+        // Выполняем merge пользователя с правильной группой
+        session.merge(user);
     }
 
     @Override

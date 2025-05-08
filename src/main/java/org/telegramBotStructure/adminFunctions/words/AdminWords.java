@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class AdminWords implements AdminWordsInterface {
@@ -12,7 +13,9 @@ public class AdminWords implements AdminWordsInterface {
     @Override
     public List<String> startAdminPanelWords()
     {
-        return new ArrayList<>(Arrays.asList("/admin", "admin", "админ", "/админ"));
+        return new ArrayList<>(Arrays.asList("/admin", "admin", "админ", "/админ")) .stream()
+                .map(String::toLowerCase)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
     @Override
     public List<String> addAndRemoveHomeworksWords()
@@ -21,25 +24,33 @@ public class AdminWords implements AdminWordsInterface {
                 "/removeHomework", "removeHomework",
                 "добавитьДЗ", "/добавитьДЗ",
                 "удалитьДЗ", "/удалитьДЗ",
-                "удалить дз", "добавить дз"));
+                "удалить дз", "добавить дз")) .stream()
+                .map(String::toLowerCase)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
     @Override
     public List<String> addAndRemoveSubjectsWords()
     {
         return new ArrayList<>(Arrays.asList("/addSubject", "addSubject", "/добавитьПредмет", "добавитьПредмет", "добавить Предмет",
-                "/removeSubject", "removeSubject", "/удалитьПредмет", "удалитьПредмет", "удалить предмет"));
+                "/removeSubject", "removeSubject", "/удалитьПредмет", "удалитьПредмет", "удалить предмет")) .stream()
+                .map(String::toLowerCase)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
     @Override
     public List<String> addAndRemoveMailingWords()
     {
         return new ArrayList<>(Arrays.asList("/addMailing", "addMailing", "добавитьРассылку", "/добавитьРассылку", "добавить рассылку",
-                "/removeMailing", "removeMailing", "удалитьРассылку", "/удалитьРассылку", "удалить рассылку"));
+                "/removeMailing", "removeMailing", "удалитьРассылку", "/удалитьРассылку", "удалить рассылку")) .stream()
+                .map(String::toLowerCase)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
     @Override
     public List<String> addAndRemoveScheduleWords()
     {
         return new ArrayList<>(Arrays.asList("/addSchedule", "addSchedule", "добавитьРасписание", "/добавитьРасписание", "добавить расписание",
-                "/removeSchedule", "removeSchedule", "удалитьРасписание", "/удалитьРасписание", "удалить расписание"));
+                "/removeSchedule", "removeSchedule", "удалитьРасписание", "/удалитьРасписание", "удалить расписание")) .stream()
+                .map(String::toLowerCase)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override

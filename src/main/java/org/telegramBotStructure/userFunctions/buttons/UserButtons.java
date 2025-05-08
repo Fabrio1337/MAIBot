@@ -121,7 +121,7 @@ public class UserButtons implements UserButtonsInterface{
         for (int i = 0; i < choices.length; i++) {
             InlineKeyboardButton button = InlineKeyboardButton.builder()
                     .text(choices[i])
-                    .callbackData("choice_" + choices[i])
+                    .callbackData(choices[i])
                     .build();
 
 
@@ -146,6 +146,24 @@ public class UserButtons implements UserButtonsInterface{
                 .chatId(chatId)
                 .messageId(messageId)
                 .replyMarkup(setGroupsButtons(callbackData.substring(underscoreIndex + 1)))
+                .build();
+    }
+
+    @Override
+    public EditMessageReplyMarkup returnCoursesButtons(long chatId, int messageId) {
+        return EditMessageReplyMarkup.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .replyMarkup(setWelcomeButtons())
+                .build();
+    }
+
+    @Override
+    public EditMessageReplyMarkup returnToMenuButtons(long chatId, int messageId) {
+        return EditMessageReplyMarkup.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .replyMarkup(setUserChoiceButtons())
                 .build();
     }
 

@@ -53,22 +53,16 @@ public class Schedule {
 
     public Schedule() {}
 
-    public Schedule(Weekday weekdayId, int classroomId, boolean isLecture, short weekType) {
+    public Schedule(Weekday weekdayId, int classroomId, short weekType) {
         this.weekdayId = weekdayId;
         this.classroomId = classroomId;
-        this.isLecture = isLecture;
         this.weekType = weekType;
     }
 
     @Override
     public String toString() {
-        return "Schedule{" +
-                "id=" + id +
-                ", classroomId=" + classroomId +
-                ", isLecture=" + isLecture +
-                ", weekType=" + weekType +
-                ", subject=" + subject +
-                ", maiGroup=" + maiGroup +
-                '}';
+        return "Предмет: " + subject +
+                " , аудитория: " + classroomId +
+                "неделя(0 - каждую неделю, 1 - нечетная неделя, 2 - четная неделя):" + weekType;
     }
 }
