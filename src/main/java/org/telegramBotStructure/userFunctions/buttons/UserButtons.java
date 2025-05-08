@@ -32,7 +32,7 @@ public class UserButtons implements UserButtonsInterface{
 
             if (row.size() == 2 || i == courses.length - 1) {
                 rows.add(row);
-                row = new InlineKeyboardRow(); // создаём новую строку после добавления
+                row = new InlineKeyboardRow();
             }
         }
 
@@ -77,6 +77,7 @@ public class UserButtons implements UserButtonsInterface{
                 .build();
     }
 
+    //кнопки выбора предметов определенного курса
     @Override
     public InlineKeyboardMarkup setSubjectButtons(List<Subject> subjects)
     {
@@ -109,6 +110,7 @@ public class UserButtons implements UserButtonsInterface{
                 .build();
     }
 
+    //меню пользователя
     @Override
     public InlineKeyboardMarkup setUserChoiceButtons()
     {
@@ -147,5 +149,4 @@ public class UserButtons implements UserButtonsInterface{
                 .build();
     }
 
-    //сделать метод для кнопки "назад"
 }
