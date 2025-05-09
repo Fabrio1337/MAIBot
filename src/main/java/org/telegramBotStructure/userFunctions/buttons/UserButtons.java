@@ -79,7 +79,7 @@ public class UserButtons implements UserButtonsInterface{
 
     //кнопки выбора предметов определенного курса
     @Override
-    public InlineKeyboardMarkup setSubjectButtons(List<Subject> subjects)
+    public EditMessageReplyMarkup setSubjectButtons(long chatId, int messageId ,List<Subject> subjects)
     {
         List<InlineKeyboardRow> rows = new ArrayList<>();
         InlineKeyboardRow row = new InlineKeyboardRow();
@@ -105,8 +105,12 @@ public class UserButtons implements UserButtonsInterface{
         row.add(backButton);
         rows.add(row);
 
-        return InlineKeyboardMarkup.builder()
-                .keyboard(rows)
+        return EditMessageReplyMarkup.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .replyMarkup(
+                        InlineKeyboardMarkup.builder().keyboard(rows).build()
+                )
                 .build();
     }
 

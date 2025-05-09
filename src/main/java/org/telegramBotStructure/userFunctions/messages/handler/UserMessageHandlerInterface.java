@@ -11,4 +11,11 @@ public interface UserMessageHandlerInterface {
     public void sendStartMessage(Message message);
     public void returnToCourse(CallbackQuery callbackQuery);
     public void returnToMenu(CallbackQuery callbackQuery);
+    public void setSubjects(CallbackQuery callbackQuery);
+    public void sendMailing(CallbackQuery callbackQuery);
+    public void sendHelpMessage(Message message);
+    public void sendAdminErrorMessage(Message message);
+    public void sendScheduleMessage(Message message);
+    public boolean isAdmin(long chatId);
+    public void sendHomework(CallbackQuery callbackQuery);
 }

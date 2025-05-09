@@ -36,9 +36,6 @@ public class Mailing {
 
     @Override
     public String toString() {
-        return "Mailing{" +
-                "id=" + id +
-                ", message='" + message + '\'' +
-                '}';
+        return "Информация: " + message + "\n";
     }
 }

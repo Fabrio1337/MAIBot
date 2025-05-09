@@ -13,42 +13,62 @@ public class AdminWords implements AdminWordsInterface {
     @Override
     public List<String> startAdminPanelWords()
     {
-        return new ArrayList<>(Arrays.asList("/admin", "admin", "админ", "/админ")) .stream()
+        return new ArrayList<>(Arrays.asList("/admin", "admin", "админ", "/админ")).stream()
                 .map(String::toLowerCase)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
     @Override
-    public List<String> addAndRemoveHomeworksWords()
+    public List<String> addHomeworksWords()
     {
         return new ArrayList<>(Arrays.asList("/addHomework", "addHomework",
-                "/removeHomework", "removeHomework",
-                "добавитьДЗ", "/добавитьДЗ",
-                "удалитьДЗ", "/удалитьДЗ",
-                "удалить дз", "добавить дз")) .stream()
+                "добавитьДЗ", "/добавитьДЗ")).stream()
                 .map(String::toLowerCase)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
     @Override
-    public List<String> addAndRemoveSubjectsWords()
+    public List<String> addSubjectsWords()
     {
-        return new ArrayList<>(Arrays.asList("/addSubject", "addSubject", "/добавитьПредмет", "добавитьПредмет", "добавить Предмет",
-                "/removeSubject", "removeSubject", "/удалитьПредмет", "удалитьПредмет", "удалить предмет")) .stream()
+        return new ArrayList<>(Arrays.asList("/addSubject", "addSubject", "/добавитьПредмет", "добавитьПредмет", "добавить Предмет")).stream()
                 .map(String::toLowerCase)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
+
     @Override
-    public List<String> addAndRemoveMailingWords()
+    public List<String> removeSubjectsWords()
     {
-        return new ArrayList<>(Arrays.asList("/addMailing", "addMailing", "добавитьРассылку", "/добавитьРассылку", "добавить рассылку",
-                "/removeMailing", "removeMailing", "удалитьРассылку", "/удалитьРассылку", "удалить рассылку")) .stream()
+        return new ArrayList<>(Arrays.asList("/removeSubject", "removeSubject", "/удалитьПредмет", "удалитьПредмет", "удалить предмет")).stream()
                 .map(String::toLowerCase)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
+
     @Override
-    public List<String> addAndRemoveScheduleWords()
+    public List<String> addMailingWords()
     {
-        return new ArrayList<>(Arrays.asList("/addSchedule", "addSchedule", "добавитьРасписание", "/добавитьРасписание", "добавить расписание",
-                "/removeSchedule", "removeSchedule", "удалитьРасписание", "/удалитьРасписание", "удалить расписание")) .stream()
+        return new ArrayList<>(Arrays.asList("/addMailing", "addMailing", "добавитьРассылку", "/добавитьРассылку", "добавить рассылку")).stream()
+                .map(String::toLowerCase)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    @Override
+    public List<String> addScheduleWords()
+    {
+        return new ArrayList<>(Arrays.asList("/addSchedule", "addSchedule", "добавитьРасписание", "/добавитьРасписание", "добавить расписание")).stream()
+                .map(String::toLowerCase)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    @Override
+    public List<String> removeScheduleWords()
+    {
+        return new ArrayList<>(Arrays.asList("/removeSchedule", "removeSchedule", "удалитьРасписание", "/удалитьРасписание", "удалить расписание")).stream()
+                .map(String::toLowerCase)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    @Override
+    public List<String> RemoveUserInGroupWords()
+    {
+        return new ArrayList<>(Arrays.asList("/removeUser", "removeUser", "/удалитьПользователя", "УдалитьПользователя", "удалить пользователя")).stream()
                 .map(String::toLowerCase)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
@@ -57,10 +77,13 @@ public class AdminWords implements AdminWordsInterface {
     public List<String> allWords() {
         ArrayList<String> words = new ArrayList<>();
         words.addAll(startAdminPanelWords());
-        words.addAll(addAndRemoveHomeworksWords());
-        words.addAll(addAndRemoveSubjectsWords());
-        words.addAll(addAndRemoveMailingWords());
-        words.addAll(addAndRemoveScheduleWords());
+        words.addAll(addHomeworksWords());
+        words.addAll(removeSubjectsWords());
+        words.addAll(addSubjectsWords());
+        words.addAll(addMailingWords());
+        words.addAll(removeScheduleWords());
+        words.addAll(addScheduleWords());
+        words.addAll(RemoveUserInGroupWords());
         return words;
     }
 }

@@ -37,7 +37,7 @@ public class Schedule {
     @Setter
     private short weekType;
 
-    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
+    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST, CascadeType.REMOVE},
             fetch = FetchType.EAGER)
     @JoinColumn(name = "subject_id")
     @Getter

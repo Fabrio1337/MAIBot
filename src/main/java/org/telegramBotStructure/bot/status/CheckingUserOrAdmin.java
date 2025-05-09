@@ -6,13 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.message.MaybeInaccessibleMessage;
 import org.telegramBotStructure.DatabaseDAO.DatabaseMethods;
-import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegramBotStructure.adminFunctions.messages.handler.AdminMessageHandlerInterface;
 import org.telegramBotStructure.entity.Admin;
-import org.telegramBotStructure.entity.MaiGroup;
-import org.telegramBotStructure.entity.User;
 import org.telegramBotStructure.userFunctions.messages.handler.UserMessageHandlerInterface;
 
 
