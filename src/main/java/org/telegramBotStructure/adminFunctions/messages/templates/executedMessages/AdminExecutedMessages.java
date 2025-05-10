@@ -20,7 +20,7 @@ public class AdminExecutedMessages implements AdminExecutedMessagesInterface{
                 "/start - показывает стартовое сообщение с навигационными кнопками\n\n" +
                 "Список команд старосты\uD83D\uDE0E:\n" +
                 "/admin - показывает список команд для старосты\n" +
-                "/addHomework 'домашнее задание' - команда для добавления домашнего задания\n" +
+                "/addHomework 'предмет' 'домашнее задание' - команда для добавления домашнего задания\n" +
                 "/addSubject 'предмет' - команда для добавления предмета\n" +
                 "/addMailing 'сообщение' - команда для добавления рассылки\n" +
                 "/addSchedule 'расписание' - команда для добавления расписания\n" +
@@ -28,5 +28,60 @@ public class AdminExecutedMessages implements AdminExecutedMessagesInterface{
                 "/removeSchedule - команда для удаления расписания\n" +
                 "/removeUser 'userId' - команда для удаления пользователя из группы", username);
         return SendMessage.builder().chatId(chatId).text(text).build();
+    }
+
+    @Override
+    public SendMessage sendSuccessDeleteUser(long chatId)
+    {
+        String text = "Пользователь удален из вашей группы☑\uFE0F";
+
+        return SendMessage.builder().chatId(chatId).text(text).build();
+    }
+
+    @Override
+    public SendMessage sendSuccessMailing(long chatId)
+    {
+        String text = "Рассылка успешно отправлена☑\uFE0F";
+
+        return SendMessage.builder().chatId(chatId).text(text).build();
+    }
+
+    @Override
+    public SendMessage sendSuccessHomework(long chatId)
+    {
+        String text = "Домашнее задание успешно добавлено☑\uFE0F";
+
+        return SendMessage.builder().chatId(chatId).text(text).build();
+    }
+
+    @Override
+    public SendMessage sendSuccessSubject(long chatId)
+    {
+        String text = "Предмет успешно добавлен в вашу группу☑\uFE0F";
+
+        return SendMessage.builder().chatId(chatId).text(text).build();
+    }
+
+    @Override
+    public SendMessage sendSuccessDeleteSubject(long chatId)
+    {
+        String text = "Предмет успешно удален из вашей группы☑\uFE0F";
+
+        return SendMessage.builder().chatId(chatId).text(text).build();
+    }
+
+    @Override
+    public SendMessage sendHomeworkMailingToAllUsersInGroup(long chatId, String subject)
+    {
+        String text = String.format("Добавлено новое домашнее задание по предмету '%s'", subject);
+
+        return SendMessage.builder().chatId(chatId).text(text).build();
+    }
+
+
+    @Override
+    public SendMessage sendMailingToAllUsersInGroup(long chatId, String mailing)
+    {
+        return SendMessage.builder().chatId(chatId).text(mailing).build();
     }
 }

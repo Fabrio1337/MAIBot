@@ -61,7 +61,7 @@ public class Schedule {
 
     @Override
     public String toString() {
-        return "Предмет: " + subject +
+        return "Предмет: " + subject.getSubjectName() +
                 " , аудитория: " + classroomId +
                 "неделя(0 - каждую неделю, 1 - нечетная неделя, 2 - четная неделя):" + weekType;
     }

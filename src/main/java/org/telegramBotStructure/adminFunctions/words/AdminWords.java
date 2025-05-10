@@ -66,7 +66,7 @@ public class AdminWords implements AdminWordsInterface {
     }
 
     @Override
-    public List<String> RemoveUserInGroupWords()
+    public List<String> RemoveUserFromGroupWords()
     {
         return new ArrayList<>(Arrays.asList("/removeUser", "removeUser", "/удалитьПользователя", "УдалитьПользователя", "удалить пользователя")).stream()
                 .map(String::toLowerCase)
@@ -83,7 +83,7 @@ public class AdminWords implements AdminWordsInterface {
         words.addAll(addMailingWords());
         words.addAll(removeScheduleWords());
         words.addAll(addScheduleWords());
-        words.addAll(RemoveUserInGroupWords());
+        words.addAll(RemoveUserFromGroupWords());
         return words;
     }
 }

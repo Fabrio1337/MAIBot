@@ -1,7 +1,6 @@
 package org.telegramBotStructure.userFunctions.messages.handler;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +13,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 import org.telegramBotStructure.DatabaseDAO.DatabaseMethods;
-import org.telegramBotStructure.adminFunctions.messages.templates.errorMessages.AdminErrorMessagesInterface;
+import org.telegramBotStructure.adminFunctions.messages.templates.errorMessages.ErrorMessagesInterface;
 import org.telegramBotStructure.adminFunctions.words.AdminWordsInterface;
 import org.telegramBotStructure.bot.Client;
 import org.telegramBotStructure.entity.Admin;
@@ -27,7 +26,6 @@ import org.telegramBotStructure.userFunctions.messages.templates.executedMessage
 import org.telegramBotStructure.userFunctions.words.UserWordsInterface;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
@@ -37,7 +35,7 @@ public class UserMessageHandler implements UserMessageHandlerInterface {
     protected final  AdminWordsInterface adminWordsInterface;
 
     @Getter
-    protected final AdminErrorMessagesInterface adminErrorMessagesInterface;
+    protected final ErrorMessagesInterface errorMessagesInterface;
 
     @Getter
     protected final Client client;
@@ -58,6 +56,7 @@ public class UserMessageHandler implements UserMessageHandlerInterface {
 
 
     @Override
+    @Transactional
     public void callback(CallbackQuery callbackQuery) {
 
         if(callbackQuery.getData().matches("^course_\\d+$"))
@@ -95,6 +94,7 @@ public class UserMessageHandler implements UserMessageHandlerInterface {
     }
 
     @Override
+    @Transactional
     public void message(Message message) {
         if( !(isAdmin(message.getChatId())) && adminWordsInterface.allWords().contains(message.getText())) {
             sendAdminErrorMessage(message);
@@ -263,7 +263,7 @@ public class UserMessageHandler implements UserMessageHandlerInterface {
     {
         try
         {
-            telegram().execute(adminErrorMessagesInterface.userIsNotAdmin(message.getChatId()));
+            telegram().execute(errorMessagesInterface.userIsNotAdmin(message.getChatId()));
         }
         catch (TelegramApiException e) {
             e.printStackTrace();
@@ -280,7 +280,7 @@ public class UserMessageHandler implements UserMessageHandlerInterface {
         }
         catch (TelegramApiException e)
         {
-
+            e.printStackTrace();
         }
     }
 
@@ -306,20 +306,17 @@ public class UserMessageHandler implements UserMessageHandlerInterface {
     }
 
     @Override
-    @Transactional
     public boolean isAdmin(long chatId) {
         Admin admin = databaseMethods.getAdmin(chatId);
         return admin != null;
     }
 
-    @Transactional
     protected void registerUser(CallbackQuery callbackQuery) {
         MaiGroup maiGroup = new MaiGroup(callbackQuery.getData());
         User user = new User(callbackQuery.getFrom().getId(), maiGroup);
         databaseMethods.setUser(user);
     }
 
-    @Transactional
     protected List<Subject> getUserSubjects(CallbackQuery callbackQuery) {
         User user = databaseMethods.getUser(callbackQuery.getFrom().getId());
         return user.getMaiGroup().getSubjects();

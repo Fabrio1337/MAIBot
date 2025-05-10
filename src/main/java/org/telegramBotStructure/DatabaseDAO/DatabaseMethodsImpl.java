@@ -120,16 +120,15 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
     public void setUser(User user) {
         Session session = sessionFactory.getCurrentSession();
 
-        // Проверяем, есть ли у пользователя группа
         if (user.getMaiGroup() != null) {
             MaiGroup groupToCheck = user.getMaiGroup();
             MaiGroup existingGroup = null;
 
-            // Если у группы задан ID, пробуем найти по ID
+
             if (Objects.equals(groupToCheck.getId(), null)) {
                 existingGroup = session.get(MaiGroup.class, groupToCheck.getId());
             }
-            // Если ID не задан или группа не найдена по ID, ищем по уникальному полю mai_group
+
             else if (groupToCheck.getGroup() != null && !groupToCheck.getGroup().isEmpty()) {
                 try {
                     String hql = "FROM MaiGroup WHERE group = :groupName";
@@ -137,18 +136,15 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
                             .setParameter("groupName", groupToCheck.getGroup())
                             .uniqueResult();
                 } catch (Exception e) {
-                    // Логируем ошибку, но продолжаем выполнение
                     System.err.println("Ошибка при поиске группы: " + e.getMessage());
                 }
             }
 
-            // Если группа существует, используем её вместо новой
             if (existingGroup != null) {
                 user.setMaiGroup(existingGroup);
             }
         }
 
-        // Выполняем merge пользователя с правильной группой
         session.merge(user);
     }
 
@@ -180,5 +176,27 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
     public void setExam(Exam exam) {
         Session session = sessionFactory.getCurrentSession();
         session.merge(exam);
+    }
+
+    @Override
+    public void removeUser(long chatId) {
+        Session session = sessionFactory.getCurrentSession();
+        session.remove(getUser(chatId));
+    }
+
+    @Override
+    public void removeSchedule(String day, String group) {
+        Session session = sessionFactory.getCurrentSession();
+        Query<?> query = session.createQuery(
+                "DELETE FROM Schedule schedule WHERE schedule.weekdayId.day = :dayName AND schedule.maiGroup.group = :groupName");
+        query.setParameter("dayName", day);
+        query.setParameter("groupName", group);
+        query.executeUpdate();
+    }
+
+    @Override
+    public void removeSubject(Subject subject) {
+        Session session = sessionFactory.getCurrentSession();
+        session.remove(subject);
     }
 }

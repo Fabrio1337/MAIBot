@@ -22,4 +22,8 @@ public interface DatabaseMethods {
     public void setSchedule(Schedule schedule);
     public void setHoliday(Holiday holiday);
     public void setExam(Exam exam);
+    public void removeUser(long chatId);
+    public void removeSchedule(String day, String group);
+    public void removeSubject(Subject subject);
+
 }

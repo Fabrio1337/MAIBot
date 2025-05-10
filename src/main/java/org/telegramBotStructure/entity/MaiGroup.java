@@ -73,8 +73,19 @@ public class MaiGroup {
 
     public void addSubjectToGroup(Subject subject) {
         if(subjects == null) subjects = new ArrayList<>();
-        if(!subjects.contains(subject)) subjects.add(subject);
+        if(!subjects.contains(subject)) {
+            subjects.add(subject);
 
+            subject.getMaiGroups().add(this);
+        }
+    }
+
+    public void removeSubjectFromGroup(Subject subject) {
+        if(subjects != null && subjects.contains(subject)) {
+            subjects.remove(subject);
+
+            subject.getMaiGroups().remove(this);
+        }
     }
 
     public void addUserToGroup(User user) {

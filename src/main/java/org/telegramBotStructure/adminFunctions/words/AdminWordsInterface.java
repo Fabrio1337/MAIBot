@@ -11,5 +11,5 @@ public interface AdminWordsInterface {
     public List<String> addScheduleWords();
     public List<String> removeScheduleWords();
     public List<String> allWords();
-    public List<String> RemoveUserInGroupWords();
+    public List<String> RemoveUserFromGroupWords();
 }

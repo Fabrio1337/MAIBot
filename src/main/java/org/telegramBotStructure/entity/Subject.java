@@ -40,6 +40,8 @@ public class Subject {
             joinColumns = @JoinColumn(name = "subject_id"),
             inverseJoinColumns = @JoinColumn(name = "group_id")
     )
+    @Getter
+    @Setter
     private List<MaiGroup> maiGroups = new ArrayList<>();
 
 
@@ -51,7 +53,19 @@ public class Subject {
 
     public void addGroup(MaiGroup maiGroup) {
         if(maiGroups == null) maiGroups = new ArrayList<>();
-        if(!maiGroups.contains(maiGroup)) maiGroups.add(maiGroup);
+        if(!maiGroups.contains(maiGroup)) {
+            maiGroups.add(maiGroup);
+
+            maiGroup.getSubjects().add(this);
+        }
+    }
+
+    public void removeGroup(MaiGroup maiGroup) {
+        if(maiGroups != null && maiGroups.contains(maiGroup)) {
+            maiGroups.remove(maiGroup);
+
+            maiGroup.getSubjects().remove(this);
+        }
     }
 
     public void addHomework(Homework homework) {
