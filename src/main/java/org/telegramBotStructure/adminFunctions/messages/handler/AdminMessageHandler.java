@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegramBotStructure.adminFunctions.buttons.AdminButtonInterface;
 import org.telegramBotStructure.adminFunctions.messages.templates.errorMessages.ErrorMessagesInterface;
 import org.telegramBotStructure.adminFunctions.messages.templates.executedMessages.AdminExecutedMessagesInterface;
 import org.telegramBotStructure.entity.*;
@@ -27,11 +28,33 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
 
     private final ErrorMessagesInterface errorMessagesInterface;
 
+    private final AdminButtonInterface adminButtonInterface;
+
     @Override
     public void callback(CallbackQuery callbackQuery) {
-        if(true)
+        if(callbackQuery.getData().equals("Расписание") || callbackQuery.getData().equals("ДЗ") || callbackQuery.getData().equals("Информация"))
+        {
+            adminChoice(callbackQuery, callbackQuery.getData());
+        }
+        else if(callbackQuery.getData().matches("^Расписание_\\w+$"))
+        {
+            adminScheduleHandler(callbackQuery);
+        }
+        else if(callbackQuery.getData().matches("^ДЗ_\\w+$"))
+        {
+            adminHomeworkHandler(callbackQuery);
+        }
+        else if(callbackQuery.getData().matches("^Информация_\\w+$"))
+        {
+            adminMailingHandler(callbackQuery);
+        }
+        else if(callbackQuery.getData().matches("^Добавить_\\w+$"))
         {
 
+        }
+        else if(callbackQuery.getData().equals("back_to_schedule"))
+        {
+            adminChoice(callbackQuery, "Расписание");
         }
         else{
             userMessageHandler.callback(callbackQuery);
@@ -69,6 +92,91 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
         } else {
 
             userMessageHandler.message(message);
+        }
+    }
+
+    @Override
+    public void adminChoice(CallbackQuery callbackQuery, String text)
+    {
+        try
+        {
+            userMessageHandler.getClient().getTelegramClient().execute(
+                    adminButtonInterface.setAdminChoiceMessage(
+                            callbackQuery.getFrom().getId(),
+                            callbackQuery.getMessage().getMessageId(),
+                            callbackQuery.getData()
+                    )
+            );
+        }
+        catch (TelegramApiException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void adminScheduleHandler(CallbackQuery callbackQuery)
+    {
+        String[] parts = callbackQuery.getData().split("_");
+        try {
+            if(parts[1].equals("Добавить"))
+            {
+                userMessageHandler.getClient().getTelegramClient().execute(
+                        adminButtonInterface.setScheduleDays(
+                                callbackQuery.getFrom().getId(),
+                                callbackQuery.getMessage().getMessageId(),
+                                parts[1]
+                        )
+                );
+            }
+            else if(parts[1].equals("Удалить"))
+            {
+
+            }
+            else if(parts[1].equals("Посмотреть"))
+            {
+                userMessageHandler.sendScheduleMessage((Message) callbackQuery.getMessage());
+            }
+        }
+        catch (TelegramApiException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void adminHomeworkHandler(CallbackQuery callbackQuery)
+    {
+        String[] parts = callbackQuery.getData().split("_");
+        if(parts[1].equals("Добавить"))
+        {
+
+        }
+        else if(parts[1].equals("Удалить"))
+        {
+
+        }
+        else if(parts[1].equals("Посмотреть"))
+        {
+            userMessageHandler.setSubjects(callbackQuery);
+        }
+    }
+
+    @Override
+    public void adminMailingHandler(CallbackQuery callbackQuery)
+    {
+        String[] parts = callbackQuery.getData().split("_");
+        if(parts[1].equals("Добавить"))
+        {
+
+        }
+        else if(parts[1].equals("Удалить"))
+        {
+
+        }
+        else if(parts[1].equals("Посмотреть"))
+        {
+            userMessageHandler.sendMailing(callbackQuery);
         }
     }
 

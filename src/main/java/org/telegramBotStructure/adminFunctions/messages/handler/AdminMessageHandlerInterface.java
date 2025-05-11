@@ -13,4 +13,8 @@ public interface AdminMessageHandlerInterface {
     public void addHomework(Message message);
     public void addMailing(Message message);
     public void removeUserFromGroup(Message message);
+    public void adminChoice(CallbackQuery callbackQuery, String text);
+    public void adminScheduleHandler(CallbackQuery callbackQuery);
+    public void adminHomeworkHandler(CallbackQuery callbackQuery);
+    public void adminMailingHandler(CallbackQuery callbackQuery);
 }
