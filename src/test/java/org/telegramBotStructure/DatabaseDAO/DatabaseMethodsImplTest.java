@@ -131,7 +131,7 @@ public class DatabaseMethodsImplTest {
         assertNotNull(weekday, "День недели не найден");
 
         // Создаем расписание с указанием ВСЕХ необходимых полей
-        Schedule schedule = new Schedule(weekday, 301, (short)0);
+        Schedule schedule = new Schedule(weekday, 301, (short)0, 4);
         schedule.setMaiGroup(group);
         schedule.setSubject(subject);
         databaseMethods.setSchedule(schedule);
@@ -183,7 +183,7 @@ public class DatabaseMethodsImplTest {
 
         // Создаем расписание
         Weekday weekday = databaseMethods.getWeekday("Среда");
-        Schedule schedule = new Schedule(weekday, 505, (short)1);
+        Schedule schedule = new Schedule(weekday, 505, (short)1, 4);
         schedule.setSubject(subject);
         schedule.setMaiGroup(group);
         databaseMethods.setSchedule(schedule);

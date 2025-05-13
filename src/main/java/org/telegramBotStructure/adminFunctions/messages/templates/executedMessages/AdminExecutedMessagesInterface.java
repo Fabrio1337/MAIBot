@@ -11,4 +11,5 @@ public interface AdminExecutedMessagesInterface {
     public SendMessage sendHomeworkMailingToAllUsersInGroup(long chatId, String subject);
     public SendMessage sendSuccessSubject(long chatId);
     public SendMessage sendSuccessDeleteSubject(long chatId);
+    public SendMessage sendWaitingScheduleMessage(long chatId, String day);
 }

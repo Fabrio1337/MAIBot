@@ -8,7 +8,6 @@ import org.telegramBotStructure.entity.Subject;
 public interface UserTemplateMessagesInterface {
     public SendMessage sendStartMessage(long chatId, String username);
     public SendMessage sendAutorizeMessage(long chatId, String username);
-    public SendMessage sendScheduleMessage(long chatId, MaiGroup maiGroup);
     public SendMessage sendMailingMessage(long chatId, MaiGroup maiGroup);
     public SendMessage sendHomeworkMessage(long chatId, Subject subject);
 }

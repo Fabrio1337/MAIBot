@@ -6,7 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "mai_groups")
@@ -123,6 +125,99 @@ public class MaiGroup {
     public void removeSchedule(Schedule schedule) {
         if (schedules == null) return;
         schedules.remove(schedule);
+    }
+
+    public String getAllSchedules() {
+
+        if (schedules == null || schedules.isEmpty()) {
+            return "Расписание отсутствует";
+        }
+
+        String[][] lessonTimes = {
+                {"09:00", "10:30"}, // 1-я пара
+                {"10:45", "12:15"}, // 2-я пара
+                {"13:00", "14:30"}, // 3-я пара
+                {"14:45", "16:15"}, // 4-я пара
+                {"16:30", "18:00"}, // 5-я пара
+                {"18:00", "19:30"}, // 6-я пара
+                {"19:40", "21:10"}  // 7-я пара
+        };
+
+        Map<Integer, List<Schedule>> schedulesByDay = new HashMap<>();
+        Map<Integer, String> dayNames = new HashMap<>();
+
+        for (Schedule schedule : schedules) {
+            int dayId = schedule.getWeekdayId().getId();
+            String dayName = schedule.getWeekdayId().getDay();
+
+            if (!schedulesByDay.containsKey(dayId)) {
+                schedulesByDay.put(dayId, new ArrayList<>());
+                dayNames.put(dayId, dayName);
+            }
+
+            schedulesByDay.get(dayId).add(schedule);
+        }
+
+        StringBuilder result = new StringBuilder("Расписание группы " + group + ":\n\n");
+
+        for (int dayId = 1; dayId <= 7; dayId++) {
+            if (schedulesByDay.containsKey(dayId)) {
+                List<Schedule> daySchedules = schedulesByDay.get(dayId);
+
+                result.append(dayNames.get(dayId)).append(":\n");
+
+                Schedule[] lessonsByNumber = new Schedule[7];
+
+                for (Schedule schedule : daySchedules) {
+
+                    int count = schedule.getLessonNumber();
+
+                    if (count >= 1 && count <= 7) {
+                        lessonsByNumber[count - 1] = schedule;
+                    }
+                }
+
+                for (int i = 0; i < 7; i++) {
+                    int lessonNumber = i + 1;
+                    if (lessonsByNumber[i] != null) {
+                        Schedule schedule = lessonsByNumber[i];
+                        result.append(lessonNumber).append(". ")
+                                .append(lessonTimes[i][0]).append("-").append(lessonTimes[i][1]).append(" ")
+                                .append(formatScheduleItem(schedule)).append("\n");
+                    } else {
+                        result.append(lessonNumber).append(". ")
+                               .append(lessonTimes[i][0]).append("-").append(lessonTimes[i][1])
+                               .append(" - \n");
+                    }
+                }
+
+                result.append("\n");
+            }
+        }
+
+        return result.toString();
+    }
+
+    private String formatScheduleItem(Schedule schedule) {
+        String weekTypeStr;
+        switch (schedule.getWeekType()) {
+            case 0:
+                weekTypeStr = "каждую неделю";
+                break;
+            case 1:
+                weekTypeStr = "нечетная неделя";
+                break;
+            case 2:
+                weekTypeStr = "четная неделя";
+                break;
+            default:
+                weekTypeStr = "неизвестно";
+        }
+
+        return String.format("'%s', аудитория: '%d', %s",
+                schedule.getSubject().getSubjectName(),
+                schedule.getClassroomId(),
+                weekTypeStr);
     }
 
     @Override

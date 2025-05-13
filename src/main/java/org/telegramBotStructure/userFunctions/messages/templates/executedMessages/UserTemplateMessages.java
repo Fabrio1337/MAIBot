@@ -36,21 +36,6 @@ public class UserTemplateMessages implements UserTemplateMessagesInterface{
                 .replyMarkup(userButtonsInterface.setWelcomeButtons()).build();
     }
 
-    @Override
-    public SendMessage sendScheduleMessage(long chatId, MaiGroup maiGroup) {
-        if(maiGroup.getSchedules().isEmpty())
-        {
-            return userErrorMessagesInterface.sendNullSubjectsMessage(chatId);
-        }
-        else {
-            String subjects = maiGroup.getSchedules().stream()
-                    .map(s -> "- " + s)
-                    .collect(Collectors.joining("\n"));
-            String text = String.format("Расписание %s группы:\n" + subjects, maiGroup.getGroup());
-
-            return SendMessage.builder().chatId(chatId).text(text).build();
-        }
-    }
 
     @Override
     public SendMessage sendMailingMessage(long chatId, MaiGroup maiGroup) {

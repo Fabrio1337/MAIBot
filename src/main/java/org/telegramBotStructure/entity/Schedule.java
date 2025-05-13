@@ -27,10 +27,10 @@ public class Schedule {
     @Setter
     private int classroomId;
 
-    @Column(name = "is_lecture")
+    @Column(name = "lesson_number")
     @Getter
     @Setter
-    private boolean isLecture;
+    private int lessonNumber;
 
     @Column(name = "week_type")
     @Getter
@@ -53,10 +53,11 @@ public class Schedule {
 
     public Schedule() {}
 
-    public Schedule(Weekday weekdayId, int classroomId, short weekType) {
+    public Schedule(Weekday weekdayId, int classroomId, short weekType, int lessonNumber) {
         this.weekdayId = weekdayId;
         this.classroomId = classroomId;
         this.weekType = weekType;
+        this.lessonNumber = lessonNumber;
     }
 
     @Override

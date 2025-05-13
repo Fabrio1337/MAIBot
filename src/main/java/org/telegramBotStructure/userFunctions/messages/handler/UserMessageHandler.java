@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
@@ -275,8 +276,15 @@ public class UserMessageHandler implements UserMessageHandlerInterface {
     {
         try
         {
-            telegram().execute(userTemplateMessagesInterface.
-                    sendScheduleMessage(message.getChatId(), databaseMethods.getUser(message.getChatId()).getMaiGroup()));
+            telegram().execute(
+                    SendMessage.builder()
+                            .chatId(message.getChatId())
+                            .text(
+                                    databaseMethods.getUser(message.getChatId()).getMaiGroup().getAllSchedules()
+                            )
+                            .build()
+            );
+
         }
         catch (TelegramApiException e)
         {

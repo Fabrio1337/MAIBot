@@ -32,8 +32,8 @@ public class AdminButtons implements AdminButtonInterface {
         String[] choices = {"Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"};
         for (int i = 0; i < choices.length; i++) {
             InlineKeyboardButton button = InlineKeyboardButton.builder()
-                    .text(text + "_" + choices[i])
-                    .callbackData(choices[i])
+                    .text(choices[i])
+                    .callbackData(text + "_" +choices[i])
                     .build();
 
 
@@ -77,8 +77,8 @@ public class AdminButtons implements AdminButtonInterface {
         String[] choices = {"Добавить", "Удалить", "Посмотреть"};
         for (int i = 0; i < choices.length; i++) {
             InlineKeyboardButton button = InlineKeyboardButton.builder()
-                    .text(text + "_" + choices[i])
-                    .callbackData(choices[i])
+                    .text(choices[i])
+                    .callbackData(text + "_" + choices[i])
                     .build();
 
 

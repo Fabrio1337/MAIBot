@@ -8,7 +8,6 @@ public interface AdminMessageHandlerInterface {
     public void callback(CallbackQuery callbackQuery);
     public void message(Message message);
     public void adminCommands(Message message);
-    public void addSubjects(Message message);
     public void removeSubjects(Message message);
     public void addHomework(Message message);
     public void addMailing(Message message);
@@ -17,4 +16,7 @@ public interface AdminMessageHandlerInterface {
     public void adminScheduleHandler(CallbackQuery callbackQuery);
     public void adminHomeworkHandler(CallbackQuery callbackQuery);
     public void adminMailingHandler(CallbackQuery callbackQuery);
+    public void dayHandler(CallbackQuery callbackQuery);
+    public void daysHandler(Message message);
+    public void deleteSchedule(CallbackQuery callbackQuery);
 }

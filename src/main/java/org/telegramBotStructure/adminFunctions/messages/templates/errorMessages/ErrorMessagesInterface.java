@@ -9,4 +9,5 @@ public interface ErrorMessagesInterface {
     public SendMessage errorAddHomeworkToGroup(long chatId);
     public SendMessage errorAddSubjectToGroup(long chatId);
     public SendMessage errorDeleteubjectToGroup(long chatId);
+    public SendMessage sendErrorScheduleMessage(long chatId, String day);
 }
