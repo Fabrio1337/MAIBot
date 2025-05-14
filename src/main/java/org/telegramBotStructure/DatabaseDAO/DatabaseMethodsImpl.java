@@ -34,10 +34,11 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
     }
 
     @Override
-    public Subject getSubject(String subject) {
+    public Subject getSubject(String subject, String group) {
         Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("from Subject subject where subject.subjectName= :subject", Subject.class)
+        return session.createQuery("from Subject subject where subject.subjectName= :subject AND subject.maiGroup.group = :groupName", Subject.class)
                 .setParameter("subject", subject)
+                .setParameter("groupName", group)
                 .uniqueResult();
     }
 
@@ -77,11 +78,10 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
     }
 
     @Override
-    public Schedule getSchedule(String group) {
+    public List<Schedule> getSchedule(String group) {
         Session session = sessionFactory.getCurrentSession();
         return session.createQuery("from Schedule schedule where schedule.maiGroup.id= :group", Schedule.class)
-                .setParameter("group", group)
-                .uniqueResult();
+                .setParameter("group", group).list();
     }
 
     @Override
@@ -198,5 +198,17 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
     public void removeSubject(Subject subject) {
         Session session = sessionFactory.getCurrentSession();
         session.remove(subject);
+    }
+
+    @Override
+    public void removeHomework(Homework homework) {
+        Session session = sessionFactory.getCurrentSession();
+        session.remove(homework);
+    }
+
+    @Override
+    public void updateSubject(Subject subject) {
+        Session session = sessionFactory.getCurrentSession();
+        session.merge(subject);
     }
 }

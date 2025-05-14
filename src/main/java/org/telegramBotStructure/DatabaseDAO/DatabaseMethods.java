@@ -6,12 +6,12 @@ import java.util.List;
 
 public interface DatabaseMethods {
     public Admin getAdmin(long chatId);
-    public Subject getSubject(String subject);
+    public Subject getSubject(String subject, String group);
     public User getUser(long chatId);
     public List<Mailing> getMailings(String group);
     public Weekday getWeekday(String day);
     public List<Homework> getHomeworks(String group);
-    public Schedule getSchedule(String group);
+    public List<Schedule> getSchedule(String group);
     public Holiday getHoliday(String group);
     public Exam getExam(String group);
     public void setAdmin(Admin admin);
@@ -25,5 +25,7 @@ public interface DatabaseMethods {
     public void removeUser(long chatId);
     public void removeSchedule(String day, String group);
     public void removeSubject(Subject subject);
+    public void removeHomework(Homework homework);
+    public void updateSubject(Subject subject);
 
 }

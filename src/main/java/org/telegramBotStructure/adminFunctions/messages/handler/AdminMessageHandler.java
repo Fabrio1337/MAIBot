@@ -4,18 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegramBotStructure.adminFunctions.databaseActions.AdminDatabaseAction;
 import org.telegramBotStructure.adminFunctions.adminState.AdminState;
-import org.telegramBotStructure.adminFunctions.adminState.AdminStateHandler;
 import org.telegramBotStructure.adminFunctions.adminState.AdminStateHandlerInterface;
-import org.telegramBotStructure.adminFunctions.buttons.AdminButtonInterface;
-import org.telegramBotStructure.adminFunctions.messages.templates.errorMessages.ErrorMessagesInterface;
-import org.telegramBotStructure.adminFunctions.messages.templates.executedMessages.AdminExecutedMessagesInterface;
+import org.telegramBotStructure.adminFunctions.messages.handler.sendMessages.SendMessageToAdmin;
+import org.telegramBotStructure.adminFunctions.words.AdminWordsInterface;
 import org.telegramBotStructure.entity.*;
-import org.telegramBotStructure.userFunctions.messages.handler.UserMessageHandler;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -25,18 +21,17 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class AdminMessageHandler implements AdminMessageHandlerInterface {
 
-    private final UserMessageHandler userMessageHandler;
-
-    private final AdminExecutedMessagesInterface adminExecutedMessagesInterface;
-
-    private final ErrorMessagesInterface errorMessagesInterface;
-
-    private final AdminButtonInterface adminButtonInterface;
+    private final AdminWordsInterface adminWordsInterface;
 
     private final AdminStateHandlerInterface adminStateHandlerInterface;
 
+    private final AdminDatabaseAction adminDatabaseAction;
+
+    private final SendMessageToAdmin sendMessageToAdmin;
+
 
     @Override
+    @Transactional
     public void callback(CallbackQuery callbackQuery) {
         if(callbackQuery.getData().equals("Расписание") || callbackQuery.getData().equals("ДЗ") || callbackQuery.getData().equals("Информация"))
         {
@@ -67,7 +62,7 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
             adminChoice(callbackQuery, "Расписание");
         }
         else{
-            userMessageHandler.callback(callbackQuery);
+            sendMessageToAdmin.callback(callbackQuery);
         }
 
 
@@ -99,9 +94,9 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
             default:
                 break;
         }
-        if (userMessageHandler.getAdminWordsInterface().allWords().contains(message.getText())) {
+        if (adminWordsInterface.allWords().contains(message.getText())) {
             adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
-            if (userMessageHandler.getAdminWordsInterface().startAdminPanelWords().contains(message.getText()))
+            if (adminWordsInterface.startAdminPanelWords().contains(message.getText()))
             {
                 adminCommands(message);
             }
@@ -123,7 +118,7 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
             }
         } else {
             adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
-            userMessageHandler.message(message);
+            sendMessageToAdmin.message(message);
         }
     }
 
@@ -131,9 +126,9 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
     public void daysHandler(Message message) {
         AdminState state = adminStateHandlerInterface.getAdminState(message.getChatId());
         String[] lines = message.getText().split("\\r?\\n");
+        Weekday weekday = adminDatabaseAction.getCurrentWeekday(state);
+        MaiGroup maiGroup = adminDatabaseAction.getCurrentUser(message.getChatId()).getMaiGroup();
         int count = 0;
-        Weekday weekday = userMessageHandler.getDatabaseMethods().getWeekday(state.getDay());
-        MaiGroup maiGroup = userMessageHandler.getDatabaseMethods().getUser(message.getChatId()).getMaiGroup();
         boolean addSchedule = true;
         for(String line : lines)
         {
@@ -168,29 +163,13 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
 
                     Subject subject = new Subject(subjectName);
 
-                    subject.addGroup(maiGroup);
-
                     Schedule schedule = new Schedule(weekday,  Integer.parseInt(room), (short) weekType, count);
-                    subject.addSchedule(schedule);
-                    schedule.setSubject(subject);
-                    schedule.setMaiGroup(maiGroup);
-                    maiGroup.addSchedule(schedule);
-                    userMessageHandler.getDatabaseMethods().setSchedule(schedule);
-                    userMessageHandler.getDatabaseMethods().setSubject(subject);
+                    adminDatabaseAction.setSchedule(schedule, maiGroup, subject);
                 }
-        }
+            }
         else
         {
-            try
-            {
-                userMessageHandler.getClient().getTelegramClient().execute(
-                        errorMessagesInterface.sendErrorScheduleMessage(message.getChatId(), state.getDay())
-                );
-            }
-            catch (TelegramApiException e)
-            {
-                e.printStackTrace();
-            }
+            sendMessageToAdmin.daysHandler(message, state);
         }
 
     }
@@ -199,77 +178,27 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
     public void deleteSchedule(CallbackQuery callbackQuery)
     {
         String[] parts = callbackQuery.getData().split("_");
-        userMessageHandler.getDatabaseMethods().removeSchedule(
-                parts[1],
-                userMessageHandler.getDatabaseMethods()
-                        .getUser(
-                        callbackQuery
-                                .getFrom()
-                                .getId())
-                        .getMaiGroup()
-                        .getGroup()
-        );
+
+        User user = adminDatabaseAction.getCurrentUser(callbackQuery.getFrom().getId());
+
+        List<Schedule> allSchedules = adminDatabaseAction.getCurrentSchedule(user.getMaiGroup().getGroup());
+
+        adminDatabaseAction.removeSchedule(allSchedules, parts[1], user.getUserId());
     }
 
     @Override
     public void adminChoice(CallbackQuery callbackQuery, String text)
     {
         adminStateHandlerInterface.setAdminState(callbackQuery.getMessage().getChatId(), AdminState.DEFAULT);
-        try
-        {
-            userMessageHandler.getClient().getTelegramClient().execute(
-                    adminButtonInterface.setAdminChoiceMessage(
-                            callbackQuery.getFrom().getId(),
-                            callbackQuery.getMessage().getMessageId(),
-                            callbackQuery.getData()
-                    )
-            );
-        }
-        catch (TelegramApiException e)
-        {
-            e.printStackTrace();
-        }
+        sendMessageToAdmin.adminChoise(callbackQuery, text);
     }
 
     @Override
     public void adminScheduleHandler(CallbackQuery callbackQuery)
     {
+        String[] parts = callbackQuery.getData().split("_");
 
-        try {
-            userMessageHandler.getClient().getTelegramClient().execute(
-                    SendMessage.builder().chatId(callbackQuery.getFrom().getId()).text("в методе adminScheduleHandler").build(
-
-                    ));
-            String[] parts = callbackQuery.getData().split("_");
-            if(parts[1].equals("Добавить"))
-            {
-                userMessageHandler.getClient().getTelegramClient().execute(
-                        adminButtonInterface.setScheduleDays(
-                                callbackQuery.getFrom().getId(),
-                                callbackQuery.getMessage().getMessageId(),
-                                parts[1]
-                        )
-                );
-            }
-            else if(parts[1].equals("Удалить"))
-            {
-                userMessageHandler.getClient().getTelegramClient().execute(
-                        adminButtonInterface.setScheduleDays(
-                                callbackQuery.getFrom().getId(),
-                                callbackQuery.getMessage().getMessageId(),
-                                parts[1]
-                        )
-                );
-            }
-            else if(parts[1].equals("Посмотреть"))
-            {
-                userMessageHandler.sendScheduleMessage((Message) callbackQuery.getMessage());
-            }
-        }
-        catch (TelegramApiException e)
-        {
-            e.printStackTrace();
-        }
+        sendMessageToAdmin.adminScheduleHandler(callbackQuery, parts);
     }
 
     @Override
@@ -279,71 +208,27 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
         AdminState state = AdminState.WAITING_SCHEDULE_ADD;
         state.setDay(parts[1]);
         adminStateHandlerInterface.setAdminState(callbackQuery.getFrom().getId(),state);
-        try
-        {
-            userMessageHandler.getClient().getTelegramClient().execute(
-                    adminExecutedMessagesInterface.sendWaitingScheduleMessage
-                            (
-                                    callbackQuery.getFrom().getId(),
-                                    parts[1]
-                            )
-            );
-        }
-        catch (TelegramApiException e)
-        {
-            e.printStackTrace();
-        }
+        sendMessageToAdmin.dayHandler(callbackQuery, parts);
     }
 
     @Override
     public void adminHomeworkHandler(CallbackQuery callbackQuery)
     {
         String[] parts = callbackQuery.getData().split("_");
-        if(parts[1].equals("Добавить"))
-        {
-
-        }
-        else if(parts[1].equals("Удалить"))
-        {
-
-        }
-        else if(parts[1].equals("Посмотреть"))
-        {
-            userMessageHandler.setSubjects(callbackQuery);
-        }
+        sendMessageToAdmin.adminHomeworkHandler(callbackQuery, parts);
     }
 
     @Override
     public void adminMailingHandler(CallbackQuery callbackQuery)
     {
         String[] parts = callbackQuery.getData().split("_");
-        if(parts[1].equals("Добавить"))
-        {
-
-        }
-        else if(parts[1].equals("Удалить"))
-        {
-
-        }
-        else if(parts[1].equals("Посмотреть"))
-        {
-            userMessageHandler.sendMailing(callbackQuery);
-        }
+        sendMessageToAdmin.adminMailingHandler(callbackQuery, parts);
     }
 
 
     @Override
     public void adminCommands(Message message) {
-        try
-        {
-            userMessageHandler.getClient().getTelegramClient().execute(
-                    adminExecutedMessagesInterface.sendCommandsMessage(message.getChatId(), message.getFrom().getUserName())
-            );
-        }
-        catch (TelegramApiException e)
-        {
-            e.printStackTrace();
-        }
+        sendMessageToAdmin.adminCommands(message);
     }
 
     @Override
@@ -352,49 +237,38 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
         Pattern pattern = Pattern.compile("^/removeSubject\\s+(.+)$");
         Matcher matcher = pattern.matcher(message.getText());
         String subject = matcher.group(1);
-        Subject subjectToGroup = new Subject(subject);
-        User user = userMessageHandler.getDatabaseMethods().getUser(message.getChatId());
-        try
-        {
 
-            for(Subject subject1 : user.getMaiGroup().getSubjects())
-            {
-                if(subjectToGroup.getSubjectName().equals(subject1.getSubjectName()))
-                {
-                    subjectToGroup.removeGroup(user.getMaiGroup());
-                    user.getMaiGroup().removeSubjectFromGroup(subjectToGroup);
-                    userMessageHandler.getDatabaseMethods().removeSubject(subjectToGroup);
-                    userMessageHandler.getClient().getTelegramClient().execute(
-                        adminExecutedMessagesInterface.sendSuccessDeleteSubject(message.getChatId())
-                    );
-                    break;
-                }
-                else
-                {
-                    subjectFound = false;
-                }
-            }
-            if(!subjectFound)
-            {
-                userMessageHandler.getClient().getTelegramClient().execute(
-                        errorMessagesInterface.errorDeleteubjectToGroup(message.getChatId())
-                );
-            }
-        }
-        catch (TelegramApiException e)
+        Subject subjectToGroup = new Subject(subject);
+        User user = adminDatabaseAction.getCurrentUser(message.getChatId());
+
+        for(Subject subject1 : user.getMaiGroup().getSubjects())
         {
-            e.printStackTrace();
+            if(subjectToGroup.getSubjectName().equals(subject1.getSubjectName()))
+            {
+                adminDatabaseAction.removeSubject(subjectToGroup, user);
+                sendMessageToAdmin.successRemoveSubjects(message);
+                break;
+            }
+            else
+            {
+                subjectFound = false;
+            }
         }
+        if(!subjectFound)
+        {
+            sendMessageToAdmin.errorRemoveSubjects(message);
+        }
+
     }
 
     @Override
-    public void addHomework(Message message) {
+    public void addHomework(Message message) throws NullPointerException{
         Pattern pattern = Pattern.compile("^/addHomework\\s+'([^']+)'\\s+'([^']+)'$");
         Matcher matcher = pattern.matcher(message.getText());
         String subject = matcher.group(1);
         String homework = matcher.group(2);
-        Subject subjectGroup = userMessageHandler.getDatabaseMethods().getSubject(subject);
-        User user = userMessageHandler.getDatabaseMethods().getUser(message.getChatId());
+        User user = adminDatabaseAction.getCurrentUser(message.getChatId());
+        Subject subjectGroup = adminDatabaseAction.getSubject(subject, user.getMaiGroup().getGroup());
         try {
             for(Subject subject1 : user.getMaiGroup().getSubjects())
             {
@@ -404,40 +278,22 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
                     break;
                 }
                 else {
-                    userMessageHandler.getClient().getTelegramClient().execute(
-                    errorMessagesInterface.errorAddHomeworkToGroup(message.getChatId())
-                    );
+                    sendMessageToAdmin.errorAddHomework(message);
                     subjectGroup = null;
                 }
             }
             if(subjectGroup != null)
             {
                 Homework homeworkGroup = new Homework(homework, subjectGroup);
-                userMessageHandler.getDatabaseMethods().setHomework(homeworkGroup);
-                userMessageHandler.getClient().getTelegramClient().execute(
-                        adminExecutedMessagesInterface.sendSuccessHomework(message.getChatId())
-                );
+                adminDatabaseAction.setHomework(homeworkGroup);
+                sendMessageToAdmin.sendSuccessAddHomework(message);
                 for (User user1 : user.getMaiGroup().getUsers()) {
-                    userMessageHandler.getClient().getTelegramClient().execute(
-                            adminExecutedMessagesInterface.sendHomeworkMailingToAllUsersInGroup(user1.getUserId(), subject)
-                    );
+                    sendMessageToAdmin.sendMailingAllUsersToGroupAboutHomeworkAdded(user1, subject);
                 }
             }
-
-
         }
-        catch (NullPointerException | TelegramApiException e) {
-            if (e instanceof NullPointerException) {
-                try {
-                    userMessageHandler.getClient().getTelegramClient().execute(
-                            errorMessagesInterface.errorAddHomeworkToGroup(message.getChatId())
-                    );
-                } catch (TelegramApiException e1) {
-                    e1.printStackTrace();
-                }
-            } else {
-                e.printStackTrace(); // Лог остальных ошибок
-            }
+        catch (NullPointerException e) {
+            sendMessageToAdmin.errorAddHomework(message);
         }
 
     }
@@ -450,22 +306,13 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
         String mailing = matcher.group(1);
         Mailing mailingToGroup = new Mailing(mailing);
         mailingToGroup.setMaiGroup(
-                userMessageHandler.getDatabaseMethods().getUser(message.getChatId()).getMaiGroup()
+                adminDatabaseAction.getCurrentGroup(message.getChatId())
         );
-        try {
-            userMessageHandler.getDatabaseMethods().setMailing(mailingToGroup);
-            userMessageHandler.getClient().getTelegramClient().execute(
-                    adminExecutedMessagesInterface.sendSuccessMailing(message.getChatId())
-            );
-            List<User> users = mailingToGroup.getMaiGroup().getUsers();
-            for (User user : users) {
-                userMessageHandler.getClient().getTelegramClient().execute(
-                        adminExecutedMessagesInterface.sendMailingToAllUsersInGroup(user.getUserId(), mailing)
-                );
-            }
-        }
-        catch (TelegramApiException e) {
-            e.printStackTrace();
+        adminDatabaseAction.setMailing(mailingToGroup);
+        sendMessageToAdmin.sendSuccessMailing(message);
+        List<User> users = mailingToGroup.getMaiGroup().getUsers();
+        for (User user : users) {
+            sendMessageToAdmin.sendMailingToAllUsersInGroup(user, mailing);
         }
     }
 
@@ -475,53 +322,38 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
         Pattern pattern = Pattern.compile("^/removeUser\\s+(.+)$");
         Matcher matcher = pattern.matcher(message.getText());
         String user = matcher.group(1);
-        Admin admin = userMessageHandler.getDatabaseMethods().getAdmin(message.getChatId());
-       try {
-           if(admin.is_set_admins())
-           {
-               try {
-                   userMessageHandler.getDatabaseMethods().removeUser(Long.parseLong(user));
-                   userMessageHandler.getClient().getTelegramClient().execute(
-                           adminExecutedMessagesInterface.sendSuccessDeleteUser(message.getChatId())
-                   );
-               }
-               catch ( NumberFormatException e ) {
-                   userMessageHandler.getClient().getTelegramClient().execute(
-                           errorMessagesInterface.sendErrorNumberFormatMessage(message.getChatId())
-                   );
-               }
-           }
-           else
-           {
-               User userIsAdmin = userMessageHandler.getDatabaseMethods().getUser(admin.getUserId());
+        Admin admin = adminDatabaseAction.getUserIsAdmin(message.getChatId());
+        if(admin.is_set_admins())
+        {
+            try {
+                adminDatabaseAction.removeUser(Long.parseLong(user));
+                sendMessageToAdmin.sendSuccessDeleteUser(message);
+            }
+            catch ( NumberFormatException e ) {
+                sendMessageToAdmin.sendErrorNumberFormatMessage(message);
+            }
+        }
+        else
+        {
+            User userIsAdmin = adminDatabaseAction.getCurrentUser(admin.getUserId());
 
-               try {
-                   User maybeDeletedUser = userMessageHandler.getDatabaseMethods().getUser(Long.parseLong(user));
-                   if(userIsAdmin.getMaiGroup().getGroup().equals(maybeDeletedUser.getMaiGroup().getGroup()))
-                   {
-                       userMessageHandler.getDatabaseMethods().removeUser(Long.parseLong(user));
-                       userMessageHandler.getClient().getTelegramClient().execute(
-                               adminExecutedMessagesInterface.sendSuccessDeleteUser(message.getChatId())
-                       );
-                   }
-                   else
-                   {
-                       userMessageHandler.getClient().getTelegramClient().execute(
-                               errorMessagesInterface.errorUserNotInYourGroupMessage(message.getChatId())
-                       );
-                   }
-               }
-               catch ( NumberFormatException e ) {
-                    userMessageHandler.getClient().getTelegramClient().execute(
-                            errorMessagesInterface.sendErrorNumberFormatMessage(message.getChatId())
-                    );
-               }
-           }
-       }
-       catch (TelegramApiException e)
-       {
-           e.printStackTrace();
-       }
+            try {
+                User maybeDeletedUser = adminDatabaseAction.getCurrentUser(Long.parseLong(user));
+                if(userIsAdmin.getMaiGroup().getGroup().equals(maybeDeletedUser.getMaiGroup().getGroup()))
+                {
+                    adminDatabaseAction.removeUser(Long.parseLong(user));
+                    sendMessageToAdmin.sendSuccessDeleteUser(message);
+                }
+                else
+                {
+                    sendMessageToAdmin.errorUserNotInYourGroupMessage(message);
+                }
+            }
+            catch ( NumberFormatException e ) {
+                sendMessageToAdmin.sendErrorNumberFormatMessage(message);
+            }
+        }
 
     }
+
 }
