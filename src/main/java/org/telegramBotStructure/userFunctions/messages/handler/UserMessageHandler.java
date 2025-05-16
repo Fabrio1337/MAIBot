@@ -27,6 +27,7 @@ import org.telegramBotStructure.userFunctions.messages.templates.executedMessage
 import org.telegramBotStructure.userFunctions.words.UserWordsInterface;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
@@ -325,7 +326,7 @@ public class UserMessageHandler implements UserMessageHandlerInterface {
         databaseMethods.setUser(user);
     }
 
-    protected List<Subject> getUserSubjects(CallbackQuery callbackQuery) {
+    protected Set<Subject> getUserSubjects(CallbackQuery callbackQuery) {
         User user = databaseMethods.getUser(callbackQuery.getFrom().getId());
         return user.getMaiGroup().getSubjects();
     }

@@ -53,6 +53,11 @@ public class AdminDatabaseActionImpl implements AdminDatabaseAction {
     }
 
     @Override
+    public Subject getSubjectByName(String name) {
+        return databaseMethods.getSubjectByName(name);
+    }
+
+    @Override
     public void setSubject(Subject subject)
     {
         databaseMethods.setSubject(subject);
@@ -61,17 +66,38 @@ public class AdminDatabaseActionImpl implements AdminDatabaseAction {
     @Override
     public void setSchedule(Schedule schedule, MaiGroup group, Subject subject)
     {
-        subject.addGroup(group);
-        subject.addSchedule(schedule);
+        MaiGroup grp = databaseMethods.mergeMaiGroup(group);
 
-        schedule.setMaiGroup(group);
-        schedule.setSubject(subject);
+        Subject existing = databaseMethods.getSubject(subject.getSubjectName(), grp.getGroup());
 
-        group.addSchedule(schedule);
-        group.addSubjectToGroup(subject);
+        Subject subj;
+        if (existing != null) {
+            subj = existing;
+        }
+        else {
+            Subject byName = databaseMethods.getSubjectByName(subject.getSubjectName());
+            if (byName != null) {
+                subj = byName;
+            } else {
+                subj = subject;
+            }
+            subj = databaseMethods.mergeSubject(subj);
 
-        databaseMethods.setSubject(subject);
-        databaseMethods.setSchedule(schedule);
+            subj.addGroup(grp);
+        }
+
+        schedule.setMaiGroup(grp);
+        schedule.setSubject(subj);
+
+        Schedule old = databaseMethods.getScheduleWithParametres(schedule);
+        if (old != null) {
+            old.setSubject(subj);
+            databaseMethods.updateSchedule(old);
+        }  else {
+            databaseMethods.setSchedule(schedule);
+        }
+
+
     }
 
     @Override
@@ -87,50 +113,60 @@ public class AdminDatabaseActionImpl implements AdminDatabaseAction {
     }
 
     @Override
-    public void removeSchedule(List<Schedule> allSchedules, String day, long chatId)
+    public boolean removeSchedule(List<Schedule> allSchedules, String day, long chatId)
     {
-        if (allSchedules == null || allSchedules.isEmpty()) return;
+        if (allSchedules == null || allSchedules.isEmpty()) return false;
+
         List<Schedule> toRemove = allSchedules.stream()
                 .filter(sch -> sch.getWeekdayId().getDay().equalsIgnoreCase(day))
                 .toList();
-        if (toRemove.isEmpty()) return;
 
-        Set<Subject> touchedSubjects = toRemove.stream()
+        if (toRemove.isEmpty()) return false;
+
+        MaiGroup group = null;
+        for (Schedule sch : toRemove) {
+            if (sch.getMaiGroup() != null) {
+                group = sch.getMaiGroup();
+                break;
+            }
+        }
+
+        if (group == null) return false;
+
+        databaseMethods.removeScheduleByDayAndGroup(day, group.getGroup());
+
+        List<Schedule> remainingSchedules = allSchedules.stream()
+                .filter(sch -> sch.getWeekdayId() != null && !sch.getWeekdayId().getDay().equalsIgnoreCase(day))
+                .toList();
+
+        Set<Subject> removedDaySubjects = toRemove.stream()
                 .map(Schedule::getSubject)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
+        Set<Subject> remainingSubjects = remainingSchedules.stream()
+                .map(Schedule::getSubject)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        Set<Subject> subjectsToRemove = new HashSet<>(removedDaySubjects);
+        subjectsToRemove.removeAll(remainingSubjects);
+
 
         for (Schedule sch : toRemove) {
-            Subject subj = sch.getSubject();
-            if (subj != null) {
-                subj.removeSchedule(sch);
-            }
-            MaiGroup grp = sch.getMaiGroup();
-            if (grp != null) {
-                grp.removeSchedule(sch);
-            }
-            sch.setSubject(null);
-            sch.setMaiGroup(null);
-            sch.setWeekdayId(null);
+            Subject subject = sch.getSubject();
+            MaiGroup currentGroup = sch.getMaiGroup();
 
-            databaseMethods.removeSchedule(day, grp.getGroup());
-        }
+            boolean subjectUsedInOtherDays = remainingSchedules.stream()
+                    .anyMatch(s -> s.getSubject().equals(subject)
+                            && s.getMaiGroup().equals(currentGroup));
 
-        List<Schedule> remaining = allSchedules.stream()
-                .filter(sch -> !toRemove.contains(sch))
-                .toList();
-
-        for (Subject subj : touchedSubjects) {
-            boolean stillInGroup = remaining.stream()
-                    .anyMatch(sch -> {
-                        Subject s = sch.getSubject();
-                        return s != null && s.getId() == subj.getId();
-                    });
-            if (!stillInGroup) {
-                removeSubject(subj, getCurrentUser(chatId));
+            if (!subjectUsedInOtherDays) {
+                removeSubject(subject, new User(chatId, currentGroup));
             }
         }
+
+        return true;
 
     }
 
@@ -138,38 +174,50 @@ public class AdminDatabaseActionImpl implements AdminDatabaseAction {
     public void removeSubject(Subject subject, User adminUser)
     {
         if (subject == null || adminUser == null) return;
-
         MaiGroup adminGroup = adminUser.getMaiGroup();
         if (adminGroup == null) return;
 
+        Subject managed = databaseMethods.getSubjectById(subject.getId());
+        if (managed == null) return;
 
-        if (subject.getMaiGroups().remove(adminGroup)) {
-            adminGroup.getSubjects().remove(subject);
-            databaseMethods.updateSubject(subject);
+        if (managed.getMaiGroups().remove(adminGroup)) {
+            adminGroup.getSubjects().remove(managed);
+            databaseMethods.updateSubject(managed);
         }
 
 
-        if (subject.getMaiGroups().isEmpty()) {
-            for (Homework hw : new ArrayList<>(subject.getHomeworks())) {
+        boolean noSchedules = managed.getSchedules().isEmpty();
+        boolean noGroups    = managed.getMaiGroups().isEmpty();
+
+        if (noSchedules && noGroups) {
+            managed.getMaiGroups().clear();
+            databaseMethods.updateSubject(managed);
+
+            for (Homework hw : new ArrayList<>(managed.getHomeworks())) {
                 databaseMethods.removeHomework(hw);
             }
-            databaseMethods.removeSubject(subject);
+
+
+            databaseMethods.removeSubject(managed);
         }
+
     }
 
     @Override
-    public void removeUser (long chatId)
+    public boolean removeUser (long chatId)
     {
+        if(getCurrentUser(chatId) == null) return false;
+
+        if(getCurrentGroup(chatId) == null) return false;
+
         User user = getCurrentUser(chatId);
 
         MaiGroup maiGroup = getCurrentGroup(chatId);
         maiGroup.removeUserFromGroup(user);
         user.setMaiGroup(null);
-        databaseMethods.removeUser(chatId);
-
+        databaseMethods.removeUser(user);
+        return true;
     }
-
-
 
 
 }

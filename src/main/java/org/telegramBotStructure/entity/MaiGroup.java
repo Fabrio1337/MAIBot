@@ -1,14 +1,10 @@
 package org.telegramBotStructure.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Entity
 @Table(name = "mai_groups")
@@ -46,14 +42,10 @@ public class MaiGroup {
     @Setter
     private List<Schedule> schedules = new ArrayList<>();;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
-    @JoinTable(name = "subject_group_link",
-            joinColumns = @JoinColumn(name = "group_id"),
-            inverseJoinColumns = @JoinColumn(name = "subject_id")
-    )
+    @ManyToMany(mappedBy = "maiGroups")
     @Getter
     @Setter
-    private List<Subject> subjects = new ArrayList<>();
+    private Set<Subject> subjects = new HashSet<>();
 
     @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
             mappedBy = "maiGroup",
@@ -74,11 +66,13 @@ public class MaiGroup {
     }
 
     public void addSubjectToGroup(Subject subject) {
-        if(subjects == null) subjects = new ArrayList<>();
+        if(subjects == null) subjects = new HashSet<>();
         if(!subjects.contains(subject)) {
             subjects.add(subject);
 
-            subject.getMaiGroups().add(this);
+            if (!subject.getMaiGroups().contains(this)) {
+                subject.getMaiGroups().add(this);
+            }
         }
     }
 
@@ -86,7 +80,9 @@ public class MaiGroup {
         if(subjects != null && subjects.contains(subject)) {
             subjects.remove(subject);
 
-            subject.getMaiGroups().remove(this);
+            if (subject.getMaiGroups().contains(this)) {
+                subject.getMaiGroups().remove(this);
+            }
         }
     }
 
@@ -128,7 +124,6 @@ public class MaiGroup {
     }
 
     public String getAllSchedules() {
-
         if (schedules == null || schedules.isEmpty()) {
             return "Расписание отсутствует";
         }
@@ -143,61 +138,65 @@ public class MaiGroup {
                 {"19:40", "21:10"}  // 7-я пара
         };
 
+        Map<Integer, String> fullWeek = Map.of(
+                1, "Понедельник",
+                2, "Вторник",
+                3, "Среда",
+                4, "Четверг",
+                5, "Пятница",
+                6, "Суббота",
+                7, "Воскресенье"
+        );
+
         Map<Integer, List<Schedule>> schedulesByDay = new HashMap<>();
-        Map<Integer, String> dayNames = new HashMap<>();
 
         for (Schedule schedule : schedules) {
             int dayId = schedule.getWeekdayId().getId();
-            String dayName = schedule.getWeekdayId().getDay();
-
-            if (!schedulesByDay.containsKey(dayId)) {
-                schedulesByDay.put(dayId, new ArrayList<>());
-                dayNames.put(dayId, dayName);
-            }
-
-            schedulesByDay.get(dayId).add(schedule);
+            schedulesByDay.computeIfAbsent(dayId, k -> new ArrayList<>()).add(schedule);
         }
 
         StringBuilder result = new StringBuilder("Расписание группы " + group + ":\n\n");
 
         for (int dayId = 1; dayId <= 7; dayId++) {
-            if (schedulesByDay.containsKey(dayId)) {
-                List<Schedule> daySchedules = schedulesByDay.get(dayId);
+            result.append("\uD83D\uDDD3").append(fullWeek.get(dayId)).append(":\n");
 
-                result.append(dayNames.get(dayId)).append(":\n");
+            List<Schedule> daySchedules = schedulesByDay.get(dayId);
 
-                Schedule[] lessonsByNumber = new Schedule[7];
-
-                for (Schedule schedule : daySchedules) {
-
-                    int count = schedule.getLessonNumber();
-
-                    if (count >= 1 && count <= 7) {
-                        lessonsByNumber[count - 1] = schedule;
-                    }
-                }
-
-                for (int i = 0; i < 7; i++) {
-                    int lessonNumber = i + 1;
-                    if (lessonsByNumber[i] != null) {
-                        Schedule schedule = lessonsByNumber[i];
-                        result.append(lessonNumber).append(". ")
-                                .append(lessonTimes[i][0]).append("-").append(lessonTimes[i][1]).append(" ")
-                                .append(formatScheduleItem(schedule)).append("\n");
-                    } else {
-                        result.append(lessonNumber).append(". ")
-                               .append(lessonTimes[i][0]).append("-").append(lessonTimes[i][1])
-                               .append(" - \n");
-                    }
-                }
-
-                result.append("\n");
+            if (daySchedules == null || daySchedules.isEmpty()) {
+                result.append("В этот день пар нет\n");
+                result.append("-------------------------\n\n");
+                continue;
             }
+
+            Schedule[] lessonsByNumber = new Schedule[7];
+
+            for (Schedule schedule : daySchedules) {
+                int count = schedule.getLessonNumber();
+                if (count >= 1 && count <= 7) {
+                    lessonsByNumber[count - 1] = schedule;
+                }
+            }
+
+            for (int i = 0; i < 7; i++) {
+                int num = i + 1;
+                String timeRange = lessonTimes[i][0] + "–" + lessonTimes[i][1];
+                result.append(num).append(". ").append(timeRange);
+
+                if (lessonsByNumber[i] != null) {
+                    result.append("\n")
+                            .append(formatScheduleItem(lessonsByNumber[i]))
+                            .append("\n\n");
+                } else {
+                    result.append("\n")
+                            .append("Нет пары")
+                            .append("\n\n");
+                }
+            }
+            result.append("-------------------------\n");
         }
 
         return result.toString();
     }
-
     private String formatScheduleItem(Schedule schedule) {
         String weekTypeStr;
         switch (schedule.getWeekType()) {
@@ -214,10 +213,25 @@ public class MaiGroup {
                 weekTypeStr = "неизвестно";
         }
 
-        return String.format("'%s', аудитория: '%d', %s",
-                schedule.getSubject().getSubjectName(),
-                schedule.getClassroomId(),
-                weekTypeStr);
+
+        return new StringBuilder()
+                .append(schedule.getSubject().getSubjectName()).append("\n")
+                .append("Ауд.: ").append("'").append(schedule.getClassroomId()).append("'").append("\n")
+                .append(weekTypeStr)
+                .toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MaiGroup)) return false;
+        MaiGroup that = (MaiGroup) o;
+        return id != 0 && id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.hashCode(id);
     }
 
     @Override

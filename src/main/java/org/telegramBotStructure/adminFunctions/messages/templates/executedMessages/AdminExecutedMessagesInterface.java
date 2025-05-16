@@ -12,4 +12,7 @@ public interface AdminExecutedMessagesInterface {
     public SendMessage sendSuccessSubject(long chatId);
     public SendMessage sendSuccessDeleteSubject(long chatId);
     public SendMessage sendWaitingScheduleMessage(long chatId, String day);
+    public SendMessage sendSuccessDeleteUserNotYourGroup(long chatId);
+    public SendMessage sendSuccessDeleteSchedule(long chatId, String day);
+    public SendMessage sendSuccessAddSchedule(long chatId, String day);
 }

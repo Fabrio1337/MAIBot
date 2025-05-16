@@ -8,8 +8,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegramBotStructure.entity.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 public class DatabaseMethodsImpl implements DatabaseMethods{
@@ -36,8 +39,12 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
     @Override
     public Subject getSubject(String subject, String group) {
         Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("from Subject subject where subject.subjectName= :subject AND subject.maiGroup.group = :groupName", Subject.class)
-                .setParameter("subject", subject)
+        return session.createQuery("""
+    select s from Subject s
+    join s.maiGroups g
+    where s.subjectName = :subjectName and g.group = :groupName
+""", Subject.class)
+                .setParameter("subjectName", subject)
                 .setParameter("groupName", group)
                 .uniqueResult();
     }
@@ -80,7 +87,7 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
     @Override
     public List<Schedule> getSchedule(String group) {
         Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("from Schedule schedule where schedule.maiGroup.id= :group", Schedule.class)
+        return session.createQuery("from Schedule schedule where schedule.maiGroup.group= :group", Schedule.class)
                 .setParameter("group", group).list();
     }
 
@@ -104,6 +111,43 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
     }
 
     @Override
+    public Schedule getScheduleWithParametres(Schedule schedule)
+    {
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery(
+                """
+    select s from Schedule s
+    where s.weekdayId = :weekdayId
+    and s.classroomId = :classroomId
+    and s.weekType = :weekType
+    and s.maiGroup = :maiGroup
+""", Schedule.class)
+                .setParameter("weekdayId", schedule.getWeekdayId())
+                .setParameter("classroomId", schedule.getClassroomId())
+                .setParameter("weekType", schedule.getWeekType())
+                .setParameter("maiGroup", schedule.getMaiGroup())
+                .uniqueResult();
+    }
+
+    @Override
+    public Subject getSubjectByName(String subject) {
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery(
+                        "select s from Subject s where s.subjectName = :name",
+                        Subject.class)
+                .setParameter("name", subject)
+                .uniqueResult();
+    }
+
+    @Override
+    public Subject getSubjectById(long id) {
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery("select s from Subject s where s.id = :id ", Subject.class)
+                .setParameter("id", id)
+                .uniqueResult();
+    }
+
+    @Override
     public void setAdmin(Admin admin) {
         Session session = sessionFactory.getCurrentSession();
         session.merge(admin);
@@ -115,6 +159,29 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
         session.merge(subject);
     }
 
+    @Override
+    public Subject mergeSubject(Subject subject) {
+        Session session = sessionFactory.getCurrentSession();
+        return session.merge(subject);
+    }
+    @Override
+    public MaiGroup mergeMaiGroup(MaiGroup group) {
+        Session session = sessionFactory.getCurrentSession();
+        return session.merge(group);
+
+    }
+
+    @Override
+    public Schedule saveSchedule(Schedule schedule) {
+        Session session = sessionFactory.getCurrentSession();
+        return session.merge(schedule);
+    }
+
+    @Override
+    public Subject saveSubject(Subject subject) {
+        Session session = sessionFactory.getCurrentSession();
+        return session.merge(subject);
+    }
 
     @Override
     public void setUser(User user) {
@@ -165,7 +232,6 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
         Session session = sessionFactory.getCurrentSession();
         session.merge(schedule);
     }
-
     @Override
     public void setHoliday(Holiday holiday) {
         Session session = sessionFactory.getCurrentSession();
@@ -179,9 +245,9 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
     }
 
     @Override
-    public void removeUser(long chatId) {
+    public void removeUser(User user) {
         Session session = sessionFactory.getCurrentSession();
-        session.remove(getUser(chatId));
+        session.remove(user);
     }
 
     @Override
@@ -192,6 +258,56 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
         query.setParameter("dayName", day);
         query.setParameter("groupName", group);
         query.executeUpdate();
+    }
+    @Override
+    public void removeScheduleByDayAndGroup(String day, String groupName) {
+        Session session = sessionFactory.getCurrentSession();
+
+        List<Schedule> toRemove = session.createQuery(
+                        "SELECT s FROM Schedule s WHERE s.weekdayId.day = :dayName AND s.maiGroup.group = :groupName",
+                        Schedule.class)
+                .setParameter("dayName", day)
+                .setParameter("groupName", groupName)
+                .list();
+        if (toRemove.isEmpty()) return;
+
+        Set<Subject> affected = toRemove.stream()
+                .map(Schedule::getSubject)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        for (Schedule sch : toRemove) {
+            Subject subj = sch.getSubject();
+            MaiGroup grp  = sch.getMaiGroup();
+            if (subj != null) {
+                subj.removeSchedule(sch);
+                subj.removeGroup(grp);
+            }
+            if (grp != null) {
+                grp.removeSchedule(sch);
+                grp.removeSubjectFromGroup(subj);
+            }
+            sch.setSubject(null);
+            sch.setMaiGroup(null);
+            sch.setWeekdayId(null);
+            session.remove(sch);
+        }
+        session.flush();
+
+        for (Subject s : affected) {
+            Subject managed = session.get(Subject.class, s.getId());
+            boolean noSched = managed.getSchedules().isEmpty();
+            boolean noGroups = managed.getMaiGroups().isEmpty();
+            if (noSched && noGroups) {
+
+                for (Homework hw : new ArrayList<>(managed.getHomeworks())) {
+                    session.remove(hw);
+                }
+                session.remove(managed);
+            } else {
+                session.merge(managed);
+            }
+        }
     }
 
     @Override
@@ -211,4 +327,11 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
         Session session = sessionFactory.getCurrentSession();
         session.merge(subject);
     }
+
+    @Override
+    public void updateSchedule(Schedule schedule) {
+        Session session = sessionFactory.getCurrentSession();
+        session.merge(schedule);
+    }
+
 }

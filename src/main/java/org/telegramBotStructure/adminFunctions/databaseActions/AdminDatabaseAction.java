@@ -12,11 +12,13 @@ public interface AdminDatabaseAction {
     public Subject getSubject(String subject, String group);
     public Admin getUserIsAdmin(long chatId);
     public List<Schedule> getCurrentSchedule(String group);
+    public Subject getSubjectByName(String name);
     public void setSubject(Subject subject);
     public void setSchedule(Schedule schedule, MaiGroup group, Subject subject);
     public void setHomework(Homework homework);
     public void setMailing(Mailing mailing);
-    public void removeSchedule(List<Schedule> allSchedules, String day, long chatId);
+    public boolean removeSchedule(List<Schedule> allSchedules, String day, long chatId);
     public void removeSubject(Subject subject, User adminUser);
-    public void removeUser (long chatId);
+    public boolean removeUser (long chatId);
+
 }

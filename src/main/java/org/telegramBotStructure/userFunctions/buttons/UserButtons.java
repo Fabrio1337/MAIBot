@@ -9,6 +9,7 @@ import org.telegramBotStructure.entity.Subject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class UserButtons implements UserButtonsInterface{
@@ -79,37 +80,44 @@ public class UserButtons implements UserButtonsInterface{
 
     //кнопки выбора предметов определенного курса
     @Override
-    public EditMessageReplyMarkup setSubjectButtons(long chatId, int messageId ,List<Subject> subjects)
-    {
+    public EditMessageReplyMarkup setSubjectButtons(long chatId, int messageId, Set<Subject> subjects) {
         List<InlineKeyboardRow> rows = new ArrayList<>();
         InlineKeyboardRow row = new InlineKeyboardRow();
-        for (int i = 0; i < subjects.size(); i++) {
+
+        for (Subject subj : subjects) {
             InlineKeyboardButton button = InlineKeyboardButton.builder()
-                    .text(subjects.get(i).getSubjectName())
-                    .callbackData("subject_" + subjects.get(i).getSubjectName())
+                    .text(subj.getSubjectName())
+                    .callbackData("subject_" + subj.getSubjectName())
                     .build();
 
             row.add(button);
 
-            if (row.size() == 2 || i == subjects.size() - 1) {
+            if (row.size() == 2) {
                 rows.add(row);
                 row = new InlineKeyboardRow();
             }
         }
 
-        row = new InlineKeyboardRow();
-        InlineKeyboardButton backButton = InlineKeyboardButton.builder()
-                .text("Назад")
-                .callbackData("back_to_menu")
-                .build();
-        row.add(backButton);
-        rows.add(row);
+        if (!row.isEmpty()) {
+            rows.add(row);
+        }
+
+        InlineKeyboardRow backRow = new InlineKeyboardRow();
+        backRow.add(
+                InlineKeyboardButton.builder()
+                        .text("Назад")
+                        .callbackData("back_to_menu")
+                        .build()
+        );
+        rows.add(backRow);
 
         return EditMessageReplyMarkup.builder()
                 .chatId(chatId)
                 .messageId(messageId)
                 .replyMarkup(
-                        InlineKeyboardMarkup.builder().keyboard(rows).build()
+                        InlineKeyboardMarkup.builder()
+                                .keyboard(rows)
+                                .build()
                 )
                 .build();
     }

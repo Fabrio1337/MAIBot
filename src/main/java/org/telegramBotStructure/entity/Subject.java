@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
 
 @Entity
 @Table(name = "subjects")
@@ -23,26 +23,34 @@ public class Subject {
     @Setter
     private String subjectName;
 
-    @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
+    @OneToMany(    cascade = { CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.REMOVE,
+            CascadeType.REFRESH },
+            orphanRemoval = true,
             mappedBy = "subject",fetch = FetchType.LAZY)
     @Getter
     @Setter
     private List<Homework> homeworks = new ArrayList<>();;
 
-    @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
-            mappedBy = "subject",fetch = FetchType.EAGER)
+    @OneToMany(
+            mappedBy = "subject",
+            cascade = { CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH,
+                    CascadeType.PERSIST, CascadeType.REMOVE },
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
     @Getter
     @Setter
     private List<Schedule> schedules = new ArrayList<>();
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @ManyToMany
     @JoinTable(name = "subject_group_link",
             joinColumns = @JoinColumn(name = "subject_id"),
             inverseJoinColumns = @JoinColumn(name = "group_id")
     )
     @Getter
     @Setter
-    private List<MaiGroup> maiGroups = new ArrayList<>();
+    private Set<MaiGroup> maiGroups = new HashSet<>();
 
 
     public Subject() {}
@@ -52,11 +60,13 @@ public class Subject {
     }
 
     public void addGroup(MaiGroup maiGroup) {
-        if(maiGroups == null) maiGroups = new ArrayList<>();
+        if(maiGroups == null) maiGroups = new HashSet<>();
         if(!maiGroups.contains(maiGroup)) {
             maiGroups.add(maiGroup);
 
-            maiGroup.getSubjects().add(this);
+            if (!maiGroup.getSubjects().contains(this)) {
+                maiGroup.getSubjects().add(this);
+            }
         }
     }
 
@@ -64,7 +74,9 @@ public class Subject {
         if(maiGroups != null && maiGroups.contains(maiGroup)) {
             maiGroups.remove(maiGroup);
 
-            maiGroup.getSubjects().remove(this);
+            if (maiGroup.getSubjects().contains(this)) {
+                maiGroup.getSubjects().remove(this);;
+            }
         }
     }
 
@@ -91,6 +103,21 @@ public class Subject {
         if(schedules == null) return;
         schedules.remove(schedule);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Subject)) return false;
+        Subject that = (Subject) o;
+
+        return id != 0 && id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.hashCode(id);
+    }
+
 
 
     @Override

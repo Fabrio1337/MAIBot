@@ -40,6 +40,12 @@ public class SendMessageToAdminImpl implements SendMessageToAdmin {
     }
 
     @Override
+    public void sendStartMessage(Message message)
+    {
+        userMessageHandler.sendStartMessage(message);
+    }
+
+    @Override
     public void daysHandler(Message message, AdminState state)
     {
         try
@@ -63,7 +69,7 @@ public class SendMessageToAdminImpl implements SendMessageToAdmin {
                     adminButtonInterface.setAdminChoiceMessage(
                             callbackQuery.getFrom().getId(),
                             callbackQuery.getMessage().getMessageId(),
-                            callbackQuery.getData()
+                            text
                     )
             );
         }
@@ -300,6 +306,48 @@ public class SendMessageToAdminImpl implements SendMessageToAdmin {
     }
 
     @Override
+    public void successDeleteSchedule(Message message, String day)
+    {
+        try {
+            telegram().execute(
+                    adminExecutedMessagesInterface.sendSuccessDeleteSchedule(message.getChatId(), day)
+            );
+        }
+        catch (TelegramApiException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void successAddSchedule(Message message, String day)
+    {
+        try {
+            telegram().execute(
+                    adminExecutedMessagesInterface.sendSuccessAddSchedule(message.getChatId(), day)
+            );
+        }
+        catch (TelegramApiException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void errorDeleteSchedule(Message message, String day)
+    {
+        try {
+            telegram().execute(
+                    errorMessagesInterface.errorDeleteSchedule(message.getChatId(), day)
+            );
+        }
+        catch (TelegramApiException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void errorUserNotInYourGroupMessage(Message message)
     {
         try {
@@ -312,6 +360,31 @@ public class SendMessageToAdminImpl implements SendMessageToAdmin {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void errorDeleteUser(Message message)
+    {
+        try {
+            telegram().execute(
+                    errorMessagesInterface.errorDeleteUser(message.getChatId())
+            );
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void sendSuccessDeleteUserNotYourGroup(Message message)
+    {
+        try {
+            telegram().execute(
+                    adminExecutedMessagesInterface.sendSuccessDeleteUserNotYourGroup(message.getChatId())
+            );
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     protected TelegramClient telegram() {
         return userMessageHandler.getClient().getTelegramClient();

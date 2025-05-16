@@ -39,6 +39,15 @@ public class AdminExecutedMessages implements AdminExecutedMessagesInterface{
     }
 
     @Override
+    public SendMessage sendSuccessDeleteUserNotYourGroup(long chatId)
+    {
+        String text = "Пользователь удален☑\uFE0F";
+
+        return SendMessage.builder().chatId(chatId).text(text).build();
+    }
+
+
+    @Override
     public SendMessage sendSuccessMailing(long chatId)
     {
         String text = "Рассылка успешно отправлена☑\uFE0F";
@@ -82,13 +91,14 @@ public class AdminExecutedMessages implements AdminExecutedMessagesInterface{
     public SendMessage sendWaitingScheduleMessage(long chatId, String day)
     {
         String text = String.format("Чтобы \uD83D\uDCC5 установить расписание на %s, отправьте сообщение в следующем формате(❗Всего в один день может быть 7 пар, НЕ БОЛЬШЕ❗):\n" +
-                "1. 'Предмет', 'аудитория', 'неделя(0 - каждую неделю, 1 - нечетная неделя, 2 - четная неделя)'\n" +
-                "2. 'Предмет', 'аудитория', 'неделя(0 - каждую неделю, 1 - нечетная неделя, 2 - четная неделя)'\n" +
-                "3. 'Предмет', 'аудитория', 'неделя(0 - каждую неделю, 1 - нечетная неделя, 2 - четная неделя)'\n" +
-                "4. 'Предмет', 'аудитория', 'неделя(0 - каждую неделю, 1 - нечетная неделя, 2 - четная неделя)'\n" +
-                "5. 'Предмет', 'аудитория', 'неделя(0 - каждую неделю, 1 - нечетная неделя, 2 - четная неделя)'\n" +
-                "6. 'Предмет', 'аудитория', 'неделя(0 - каждую неделю, 1 - нечетная неделя, 2 - четная неделя)'\n" +
-                "7. 'Предмет', 'аудитория', 'неделя(0 - каждую неделю, 1 - нечетная неделя, 2 - четная неделя)'\n" +
+                "1. 'Предмет', 'аудитория', 'неделя'\n" +
+                "2. 'Предмет', 'аудитория', 'неделя'\n" +
+                "3. 'Предмет', 'аудитория', 'неделя'\n" +
+                "4. 'Предмет', 'аудитория', 'неделя'\n" +
+                "5. 'Предмет', 'аудитория', 'неделя'\n" +
+                "6. 'Предмет', 'аудитория', 'неделя'\n" +
+                "7. 'Предмет', 'аудитория', 'неделя'\n" +
+                "❗неделя(0 - каждую неделю, 1 - нечетная неделя, 2 - четная неделя)\n" +
                 "\uD83E\uDDE0 Цифра перед предметом — это номер пары (от 1 до 7).\n" +
                 "\n" +
                 "❗Если пара отсутствует — просто указывайте номер и ничего больше.\n" +
@@ -108,5 +118,19 @@ public class AdminExecutedMessages implements AdminExecutedMessagesInterface{
     public SendMessage sendMailingToAllUsersInGroup(long chatId, String mailing)
     {
         return SendMessage.builder().chatId(chatId).text(mailing).build();
+    }
+
+    @Override
+    public SendMessage sendSuccessDeleteSchedule(long chatId, String day) {
+        String text = String.format("Расписание за %s успешно удалено☑\uFE0F", day);
+
+        return SendMessage.builder().chatId(chatId).text(text).build();
+    }
+
+    @Override
+    public SendMessage sendSuccessAddSchedule(long chatId, String day) {
+        String text = String.format("Расписание на %s успешно добавлено☑\uFE0F", day);
+
+        return SendMessage.builder().chatId(chatId).text(text).build();
     }
 }

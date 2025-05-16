@@ -76,47 +76,47 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
         switch (currentState) {
             case WAITING_SCHEDULE_ADD:
                 daysHandler(message);
-                break;
+                adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
+                return;
 
 
             case WAITING_SUBJECT_ADD:
 
-                break;
+                return;
 
             case WAITING_HOMEWORK_ADD:
 
-                break;
+                return;
 
             case WAITING_INFORMATION_ADD:
 
-                break;
+                return;
 
             default:
                 break;
         }
-        if (adminWordsInterface.allWords().contains(message.getText())) {
+
+        if (adminWordsInterface.startAdminPanelWords().contains(message.getText().toLowerCase())) {
             adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
-            if (adminWordsInterface.startAdminPanelWords().contains(message.getText()))
-            {
-                adminCommands(message);
-            }
-            else if (message.getText().matches("^/removeSubject\\s+(.+)$"))
-            {
-                removeSubjects(message);
-            }
-            else if(message.getText().matches("^/addHomework\\s+'([^']+)'\\s+'([^']+)'$"))
-            {
-                addHomework(message);
-            }
-            else if(message.getText().matches("^/addMailing\\s+(.+)$"))
-            {
-                addMailing(message);
-            }
-            else if(message.getText().matches("^/removeUser\\s+(.+)$"))
-            {
-                removeUserFromGroup(message);
-            }
-        } else {
+            adminCommands(message);
+        }
+        else if (message.getText().toLowerCase().startsWith("/removesubject ")) {
+            adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
+            removeSubjects(message);
+        }
+        else if (message.getText().toLowerCase().startsWith("/addhomework ")) {
+            adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
+            addHomework(message);
+        }
+        else if (message.getText().toLowerCase().startsWith("/addmailing ")) {
+            adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
+            addMailing(message);
+        }
+        else if (message.getText().toLowerCase().startsWith("/removeuser ")) {
+            adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
+            removeUserFromGroup(message);
+        }
+        else if(!adminWordsInterface.allWords().contains(message.getText().toLowerCase())){
             adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
             sendMessageToAdmin.message(message);
         }
@@ -125,29 +125,21 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
     @Override
     public void daysHandler(Message message) {
         AdminState state = adminStateHandlerInterface.getAdminState(message.getChatId());
+        adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.WAITING_SCHEDULE_ADD);
         String[] lines = message.getText().split("\\r?\\n");
         Weekday weekday = adminDatabaseAction.getCurrentWeekday(state);
         MaiGroup maiGroup = adminDatabaseAction.getCurrentUser(message.getChatId()).getMaiGroup();
         int count = 0;
         boolean addSchedule = true;
-        for(String line : lines)
+        boolean isAdded = false;
+        if(lines.length > 7)
         {
-            String content = line.replaceFirst("^\\d+\\.\\s*", "");
-
-            count++;
-            if (content.isBlank()) {
-                continue;
-            }
-
-            String[] parts = content.split(",");
-
-            if(parts.length == 1)
-            {
-                addSchedule = false;
-            }
+            sendMessageToAdmin.daysHandler(message, state);
         }
-        if(addSchedule)
-            for (String line : lines) {
+       else
+        {
+            for(String line : lines)
+            {
                 String content = line.replaceFirst("^\\d+\\.\\s*", "");
 
                 count++;
@@ -156,20 +148,45 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
                 }
 
                 String[] parts = content.split(",");
-                if (parts.length == 3) {
-                    String subjectName = parts[0].trim();
-                    String room = parts[1].trim();
-                    int weekType = Integer.parseInt(parts[2].trim());
 
-                    Subject subject = new Subject(subjectName);
-
-                    Schedule schedule = new Schedule(weekday,  Integer.parseInt(room), (short) weekType, count);
-                    adminDatabaseAction.setSchedule(schedule, maiGroup, subject);
+                if(parts.length == 1)
+                {
+                    addSchedule = false;
                 }
             }
-        else
-        {
-            sendMessageToAdmin.daysHandler(message, state);
+            count = 0;
+            if(addSchedule) {
+                for (String line : lines) {
+                    String content = line.replaceFirst("^\\d+\\.\\s*", "");
+
+                    count++;
+                    if (content.isBlank()) {
+                        continue;
+                    }
+
+                    String[] parts = content.split(",");
+                    if (parts.length == 3) {
+                        String subjectName = parts[0].trim();
+                        String room = parts[1].trim();
+                        int weekType = Integer.parseInt(parts[2].trim());
+
+                        Subject subject = new Subject(subjectName);
+
+                        Schedule schedule = new Schedule(weekday, Integer.parseInt(room), (short) weekType, count);
+                        Subject subject1 = adminDatabaseAction.getSubjectByName(subjectName);
+                        if (subject1 == null) {
+                            subject1 = new Subject(subjectName);
+                        }
+                        adminDatabaseAction.setSchedule(schedule, maiGroup, subject);
+                    }
+                }
+                sendMessageToAdmin.successAddSchedule(message, weekday.getDay());
+                sendMessageToAdmin.sendStartMessage(message);
+            }
+            else
+            {
+                sendMessageToAdmin.daysHandler(message, state);
+            }
         }
 
     }
@@ -183,7 +200,16 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
 
         List<Schedule> allSchedules = adminDatabaseAction.getCurrentSchedule(user.getMaiGroup().getGroup());
 
-        adminDatabaseAction.removeSchedule(allSchedules, parts[1], user.getUserId());
+       boolean isDeleted =  adminDatabaseAction.removeSchedule(allSchedules, parts[1], user.getUserId());
+
+       if(isDeleted)
+       {
+            sendMessageToAdmin.successDeleteSchedule((Message) callbackQuery.getMessage(), parts[1]);
+       }
+       else
+       {
+           sendMessageToAdmin.errorDeleteSchedule((Message) callbackQuery.getMessage(), parts[1]);
+       }
     }
 
     @Override
@@ -234,7 +260,7 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
     @Override
     public void removeSubjects(Message message) {
         boolean subjectFound = true;
-        Pattern pattern = Pattern.compile("^/removeSubject\\s+(.+)$");
+        Pattern pattern = Pattern.compile("^/removeSubject\\s+(.+)$", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(message.getText());
         String subject = matcher.group(1);
 
@@ -263,7 +289,7 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
 
     @Override
     public void addHomework(Message message) throws NullPointerException{
-        Pattern pattern = Pattern.compile("^/addHomework\\s+'([^']+)'\\s+'([^']+)'$");
+        Pattern pattern = Pattern.compile("^/addHomework\\s+'([^']+)'\\s+'([^']+)'$", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(message.getText());
         String subject = matcher.group(1);
         String homework = matcher.group(2);
@@ -301,7 +327,7 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
 
     @Override
     public void addMailing(Message message) {
-        Pattern pattern = Pattern.compile("^/addMailing\\s+(.+)$");
+        Pattern pattern = Pattern.compile("^/addMailing\\s+(.+)$", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(message.getText());
         String mailing = matcher.group(1);
         Mailing mailingToGroup = new Mailing(mailing);
@@ -319,41 +345,41 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
 
     @Override
     public void removeUserFromGroup(Message message) {
-        Pattern pattern = Pattern.compile("^/removeUser\\s+(.+)$");
+        Pattern pattern = Pattern.compile("^/removeUser\\s+(\\d+)$", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(message.getText());
+
+        if (!matcher.matches()) {
+            sendMessageToAdmin.sendErrorNumberFormatMessage(message);
+            return;
+        }
+
         String user = matcher.group(1);
+        long userId;
+        try {
+            userId = Long.parseLong(user);
+        } catch (NumberFormatException e) {
+            sendMessageToAdmin.sendErrorNumberFormatMessage(message);
+            return;
+        }
+
         Admin admin = adminDatabaseAction.getUserIsAdmin(message.getChatId());
-        if(admin.is_set_admins())
-        {
-            try {
-                adminDatabaseAction.removeUser(Long.parseLong(user));
-                sendMessageToAdmin.sendSuccessDeleteUser(message);
-            }
-            catch ( NumberFormatException e ) {
-                sendMessageToAdmin.sendErrorNumberFormatMessage(message);
-            }
-        }
-        else
-        {
+
+        if (admin.is_set_admins()) {
+            boolean isSuccess = adminDatabaseAction.removeUser(userId);
+            if(isSuccess) sendMessageToAdmin.sendSuccessDeleteUserNotYourGroup(message);
+            else sendMessageToAdmin.errorDeleteUser(message);
+        } else {
             User userIsAdmin = adminDatabaseAction.getCurrentUser(admin.getUserId());
+            User maybeDeletedUser = adminDatabaseAction.getCurrentUser(userId);
 
-            try {
-                User maybeDeletedUser = adminDatabaseAction.getCurrentUser(Long.parseLong(user));
-                if(userIsAdmin.getMaiGroup().getGroup().equals(maybeDeletedUser.getMaiGroup().getGroup()))
-                {
-                    adminDatabaseAction.removeUser(Long.parseLong(user));
-                    sendMessageToAdmin.sendSuccessDeleteUser(message);
-                }
-                else
-                {
-                    sendMessageToAdmin.errorUserNotInYourGroupMessage(message);
-                }
-            }
-            catch ( NumberFormatException e ) {
-                sendMessageToAdmin.sendErrorNumberFormatMessage(message);
+            if (userIsAdmin.getMaiGroup().getGroup().equals(maybeDeletedUser.getMaiGroup().getGroup())) {
+                boolean isSuccess = adminDatabaseAction.removeUser(userId);
+                if(isSuccess) sendMessageToAdmin.sendSuccessDeleteUser(message);
+                else sendMessageToAdmin.errorDeleteUser(message);
+            } else {
+                sendMessageToAdmin.errorUserNotInYourGroupMessage(message);
             }
         }
-
     }
 
 }
