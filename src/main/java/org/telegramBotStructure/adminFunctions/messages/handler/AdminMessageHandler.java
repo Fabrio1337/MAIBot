@@ -82,14 +82,17 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
 
             case WAITING_SUBJECT_ADD:
 
+                adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
                 return;
 
             case WAITING_HOMEWORK_ADD:
 
+                adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
                 return;
 
             case WAITING_INFORMATION_ADD:
-
+                addMailingToGroup(message);
+                adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
                 return;
 
             default:
@@ -189,6 +192,21 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
             }
         }
 
+    }
+
+    @Override
+    public void addMailingToGroup(Message message)
+    {
+        String mailing = message.getText();
+        Mailing mail = new Mailing(mailing);
+        MaiGroup maiGroup = adminDatabaseAction.getCurrentUser(message.getChatId()).getMaiGroup();
+        mail.setMaiGroup(maiGroup);
+        adminDatabaseAction.setMailing(mail);
+
+        for (User user : maiGroup.getUsers())
+        {
+            sendMessageToAdmin.sendMailingToAllUsersInGroup(user, mailing);
+        }
     }
 
     @Override

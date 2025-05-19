@@ -19,4 +19,5 @@ public interface AdminMessageHandlerInterface {
     public void dayHandler(CallbackQuery callbackQuery);
     public void daysHandler(Message message);
     public void deleteSchedule(CallbackQuery callbackQuery);
+    public void addMailingToGroup(Message message);
 }

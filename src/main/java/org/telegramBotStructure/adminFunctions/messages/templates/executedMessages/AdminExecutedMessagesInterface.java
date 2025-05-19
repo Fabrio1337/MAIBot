@@ -15,4 +15,5 @@ public interface AdminExecutedMessagesInterface {
     public SendMessage sendSuccessDeleteUserNotYourGroup(long chatId);
     public SendMessage sendSuccessDeleteSchedule(long chatId, String day);
     public SendMessage sendSuccessAddSchedule(long chatId, String day);
+    public SendMessage sendWaitingMailingMessage(long chatId);
 }

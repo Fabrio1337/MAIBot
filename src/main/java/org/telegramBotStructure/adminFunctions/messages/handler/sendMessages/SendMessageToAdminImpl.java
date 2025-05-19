@@ -8,7 +8,9 @@ import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 import org.telegramBotStructure.adminFunctions.adminState.AdminState;
+import org.telegramBotStructure.adminFunctions.adminState.AdminStateHandlerInterface;
 import org.telegramBotStructure.adminFunctions.buttons.AdminButtonInterface;
+import org.telegramBotStructure.adminFunctions.databaseActions.AdminDatabaseActionImpl;
 import org.telegramBotStructure.adminFunctions.messages.templates.errorMessages.ErrorMessagesInterface;
 import org.telegramBotStructure.adminFunctions.messages.templates.executedMessages.AdminExecutedMessagesInterface;
 import org.telegramBotStructure.entity.User;
@@ -25,6 +27,10 @@ public class SendMessageToAdminImpl implements SendMessageToAdmin {
     private final ErrorMessagesInterface errorMessagesInterface;
 
     private final AdminButtonInterface adminButtonInterface;
+
+    private final AdminStateHandlerInterface adminStateHandlerInterface;
+
+    private final AdminDatabaseActionImpl adminDatabaseActionImpl;
 
 
     @Override
@@ -155,11 +161,14 @@ public class SendMessageToAdminImpl implements SendMessageToAdmin {
     {
         if(parts[1].equals("Добавить"))
         {
+            adminExecutedMessagesInterface.sendWaitingMailingMessage(callbackQuery.getFrom().getId());
+            adminStateHandlerInterface.setAdminState(callbackQuery.getFrom().getId(), AdminState.WAITING_INFORMATION_ADD);
 
         }
         else if(parts[1].equals("Удалить"))
         {
-
+            User user = adminDatabaseActionImpl.getCurrentUser(callbackQuery.getFrom().getId());
+            adminDatabaseActionImpl.removeMailing(user);
         }
         else if(parts[1].equals("Посмотреть"))
         {

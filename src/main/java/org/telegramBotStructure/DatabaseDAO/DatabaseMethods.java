@@ -36,5 +36,6 @@ public interface DatabaseMethods {
     public void updateSubject(Subject subject);
     public void updateSchedule(Schedule schedule);
     public void removeScheduleByDayAndGroup(String day, String group);
+    public void removeMailingByGroup(String group);
 
 }

@@ -113,6 +113,15 @@ public class AdminExecutedMessages implements AdminExecutedMessagesInterface{
         return SendMessage.builder().chatId(chatId).text(text).build();
     }
 
+    @Override
+    public SendMessage sendWaitingMailingMessage(long chatId)
+    {
+        String text = "Напишите сообщение которое хотите разослать своим одногруппникам\uD83D\uDCAC \n" +
+                "❗На данный момент бот поддерживает отправку только обычных текстовых сообщений, без фотографий или файлов❗";
+
+        return SendMessage.builder().chatId(chatId).text(text).build();
+    }
+
 
     @Override
     public SendMessage sendMailingToAllUsersInGroup(long chatId, String mailing)

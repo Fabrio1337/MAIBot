@@ -20,5 +20,6 @@ public interface AdminDatabaseAction {
     public boolean removeSchedule(List<Schedule> allSchedules, String day, long chatId);
     public void removeSubject(Subject subject, User adminUser);
     public boolean removeUser (long chatId);
+    public void removeMailing(User user);
 
 }

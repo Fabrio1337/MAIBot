@@ -334,4 +334,16 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
         session.merge(schedule);
     }
 
+    @Override
+    public void removeMailingByGroup(String group) {
+        Session session = sessionFactory.getCurrentSession();
+        List<Mailing> mailings = session.createQuery("select m from Mailing m where m.maiGroup.group =: groupName", Mailing.class)
+                .setParameter("groupName", group)
+                .list();
+
+        if (mailings.isEmpty()) return;
+        for (Mailing mailing : mailings) {
+            session.remove(mailing);
+        }
+    }
 }

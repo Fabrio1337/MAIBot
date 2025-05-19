@@ -219,5 +219,10 @@ public class AdminDatabaseActionImpl implements AdminDatabaseAction {
         return true;
     }
 
+    @Override
+    public void removeMailing(User user)
+    {
+        databaseMethods.removeMailingByGroup(user.getMaiGroup().getGroup());
+    }
 
 }
