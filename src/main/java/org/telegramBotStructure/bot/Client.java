@@ -9,7 +9,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 @Service
 public class Client {
 
-    private final String botToken = "";
+    private final String botToken = "7569873625:AAEzrnpYHP1IBtic_2Sxl9m6GyD4RtEJl3M";
 
     private final TelegramClient telegramClient;
 

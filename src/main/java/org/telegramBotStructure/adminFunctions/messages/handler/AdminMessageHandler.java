@@ -33,35 +33,25 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
     @Override
     @Transactional
     public void callback(CallbackQuery callbackQuery) {
-        if(callbackQuery.getData().equals("Расписание") || callbackQuery.getData().equals("ДЗ") || callbackQuery.getData().equals("Информация"))
-        {
+        if (callbackQuery.getData().equals("Расписание") || callbackQuery.getData().equals("ДЗ") || callbackQuery.getData().equals("Информация")) {
             adminChoice(callbackQuery, callbackQuery.getData());
-        }
-        else if(callbackQuery.getData().startsWith("Расписание_"))
-        {
+        } else if (callbackQuery.getData().startsWith("Расписание_")) {
             adminScheduleHandler(callbackQuery);
-        }
-        else if(callbackQuery.getData().startsWith("ДЗ_"))
-        {
+        } else if (callbackQuery.getData().startsWith("ДЗ_")) {
             adminHomeworkHandler(callbackQuery);
-        }
-        else if(callbackQuery.getData().startsWith("Информация_"))
-        {
+        } else if (callbackQuery.getData().startsWith("Информация_")) {
             adminMailingHandler(callbackQuery);
-        }
-        else if(callbackQuery.getData().startsWith("Добавить_"))
-        {
+        } else if (callbackQuery.getData().startsWith("Добавить_")) {
             dayHandler(callbackQuery);
-        }
-        else if(callbackQuery.getData().startsWith("Удалить_"))
-        {
+        } else if (callbackQuery.getData().startsWith("Удалить_")) {
             deleteSchedule(callbackQuery);
-        }
-        else if(callbackQuery.getData().equals("back_to_schedule"))
-        {
+        } else if (callbackQuery.getData().startsWith("УдалитьДЗ_")) {
+            //отображение кнопки
+        } else if (callbackQuery.getData().startsWith("ДобавитьДЗ_")) {
+            addingHomeworkHandler(callbackQuery, null);
+        } else if (callbackQuery.getData().equals("back_to_schedule")) {
             adminChoice(callbackQuery, "Расписание");
-        }
-        else{
+        } else {
             sendMessageToAdmin.callback(callbackQuery);
         }
 
@@ -81,12 +71,11 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
 
 
             case WAITING_SUBJECT_ADD:
-
                 adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
                 return;
 
             case WAITING_HOMEWORK_ADD:
-
+                addingHomeworkHandler(null, message);
                 adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
                 return;
 
@@ -102,24 +91,19 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
         if (adminWordsInterface.startAdminPanelWords().contains(message.getText().toLowerCase())) {
             adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
             adminCommands(message);
-        }
-        else if (message.getText().toLowerCase().startsWith("/removesubject ")) {
+        } else if (message.getText().toLowerCase().startsWith("/removesubject ")) {
             adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
             removeSubjects(message);
-        }
-        else if (message.getText().toLowerCase().startsWith("/addhomework ")) {
+        } else if (message.getText().toLowerCase().startsWith("/addhomework ")) {
             adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
             addHomework(message);
-        }
-        else if (message.getText().toLowerCase().startsWith("/addmailing ")) {
+        } else if (message.getText().toLowerCase().startsWith("/addmailing ")) {
             adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
             addMailing(message);
-        }
-        else if (message.getText().toLowerCase().startsWith("/removeuser ")) {
+        } else if (message.getText().toLowerCase().startsWith("/removeuser ")) {
             adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
             removeUserFromGroup(message);
-        }
-        else if(!adminWordsInterface.allWords().contains(message.getText().toLowerCase())){
+        } else if (!adminWordsInterface.allWords().contains(message.getText().toLowerCase())) {
             adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
             sendMessageToAdmin.message(message);
         }
@@ -135,14 +119,10 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
         int count = 0;
         boolean addSchedule = true;
         boolean isAdded = false;
-        if(lines.length > 7)
-        {
+        if (lines.length > 7) {
             sendMessageToAdmin.daysHandler(message, state);
-        }
-       else
-        {
-            for(String line : lines)
-            {
+        } else {
+            for (String line : lines) {
                 String content = line.replaceFirst("^\\d+\\.\\s*", "");
 
                 count++;
@@ -152,13 +132,12 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
 
                 String[] parts = content.split(",");
 
-                if(parts.length == 1)
-                {
+                if (parts.length == 1) {
                     addSchedule = false;
                 }
             }
             count = 0;
-            if(addSchedule) {
+            if (addSchedule) {
                 for (String line : lines) {
                     String content = line.replaceFirst("^\\d+\\.\\s*", "");
 
@@ -185,14 +164,19 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
                 }
                 sendMessageToAdmin.successAddSchedule(message, weekday.getDay());
                 sendMessageToAdmin.sendStartMessage(message);
-            }
-            else
-            {
+            } else {
                 sendMessageToAdmin.daysHandler(message, state);
             }
         }
 
     }
+
+    @Override
+    public void addingHomeworkHandler(CallbackQuery callbackQuery, Message message)
+    {
+        sendMessageToAdmin.adminHomeworkHandler(callbackQuery, message);
+    }
+
 
     @Override
     public void addMailingToGroup(Message message)

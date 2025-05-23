@@ -99,4 +99,21 @@ public class ErrorMessages implements ErrorMessagesInterface {
 
         return SendMessage.builder().chatId(chatId).text(text).build();
     }
+
+    @Override
+    public SendMessage sendAddNullSubjectsMessage(long chatId)
+    {
+        String text = "Для вашей группы не добавлено никаких предметов, " +
+                "сперва добавьте расписание, предметы добавятся сами";
+
+        return SendMessage.builder().chatId(chatId).text(text).build();
+    }
+    @Override
+    public SendMessage sendRemoveNullSubjectsMessage(long chatId)
+    {
+        String text = "Для вашей группы нельзя удалить домашние задания, " +
+                "сперва добавьте расписание, предметы добавятся сами";
+
+        return SendMessage.builder().chatId(chatId).text(text).build();
+    }
 }

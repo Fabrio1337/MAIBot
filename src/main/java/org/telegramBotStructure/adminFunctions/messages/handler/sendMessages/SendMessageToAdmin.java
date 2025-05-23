@@ -14,6 +14,7 @@ public interface SendMessageToAdmin {
     public void adminScheduleHandler(CallbackQuery callbackQuery, String[] parts);
     public void dayHandler(CallbackQuery callbackQuery, String[] parts);
     public void adminHomeworkHandler(CallbackQuery callbackQuery, String[] parts);
+    public void adminHomeworkHandler(CallbackQuery callbackQuery, Message message);
     public void adminMailingHandler(CallbackQuery callbackQuery, String[] parts);
     public void adminCommands(Message message);
     public void successRemoveSubjects(Message message);

@@ -20,4 +20,5 @@ public interface AdminMessageHandlerInterface {
     public void daysHandler(Message message);
     public void deleteSchedule(CallbackQuery callbackQuery);
     public void addMailingToGroup(Message message);
+    public void addingHomeworkHandler(CallbackQuery callbackQuery, Message message);
 }

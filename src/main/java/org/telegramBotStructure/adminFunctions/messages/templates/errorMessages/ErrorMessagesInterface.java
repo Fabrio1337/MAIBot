@@ -12,4 +12,6 @@ public interface ErrorMessagesInterface {
     public SendMessage sendErrorScheduleMessage(long chatId, String day);
     public SendMessage errorDeleteUser(long chatId);
     public SendMessage errorDeleteSchedule(long chatId, String day);
+    public SendMessage sendAddNullSubjectsMessage(long chatId);
+    public SendMessage sendRemoveNullSubjectsMessage(long chatId);
 }

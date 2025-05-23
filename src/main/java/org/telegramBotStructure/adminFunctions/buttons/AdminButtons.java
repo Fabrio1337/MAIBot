@@ -9,10 +9,12 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageRe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
+import org.telegramBotStructure.entity.Subject;
 import org.telegramBotStructure.userFunctions.buttons.UserButtonsInterface;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 @Getter
@@ -100,6 +102,49 @@ public class AdminButtons implements AdminButtonInterface {
 
         return InlineKeyboardMarkup.builder()
                 .keyboard(rows)
+                .build();
+    }
+
+    @Override
+    public EditMessageReplyMarkup setSubjectButtons(long chatId, int messageId, Set<Subject> subjects, String data) {
+        List<InlineKeyboardRow> rows = new ArrayList<>();
+        InlineKeyboardRow row = new InlineKeyboardRow();
+
+        for (Subject subj : subjects) {
+            InlineKeyboardButton button = InlineKeyboardButton.builder()
+                    .text(subj.getSubjectName())
+                    .callbackData(data + "_" + subj.getSubjectName())
+                    .build();
+
+            row.add(button);
+
+            if (row.size() == 2) {
+                rows.add(row);
+                row = new InlineKeyboardRow();
+            }
+        }
+
+        if (!row.isEmpty()) {
+            rows.add(row);
+        }
+
+        InlineKeyboardRow backRow = new InlineKeyboardRow();
+        backRow.add(
+                InlineKeyboardButton.builder()
+                        .text("Назад")
+                        .callbackData("back_to_menu")
+                        .build()
+        );
+        rows.add(backRow);
+
+        return EditMessageReplyMarkup.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .replyMarkup(
+                        InlineKeyboardMarkup.builder()
+                                .keyboard(rows)
+                                .build()
+                )
                 .build();
     }
 

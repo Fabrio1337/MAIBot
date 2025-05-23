@@ -14,4 +14,8 @@ public enum AdminState {
     @Setter
     private String day;
 
+    @Getter
+    @Setter
+    private String subject;
+
 }

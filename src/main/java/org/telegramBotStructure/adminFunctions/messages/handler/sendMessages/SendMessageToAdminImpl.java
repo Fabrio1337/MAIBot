@@ -10,11 +10,17 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import org.telegramBotStructure.adminFunctions.adminState.AdminState;
 import org.telegramBotStructure.adminFunctions.adminState.AdminStateHandlerInterface;
 import org.telegramBotStructure.adminFunctions.buttons.AdminButtonInterface;
+import org.telegramBotStructure.adminFunctions.buttons.AdminButtons;
 import org.telegramBotStructure.adminFunctions.databaseActions.AdminDatabaseActionImpl;
 import org.telegramBotStructure.adminFunctions.messages.templates.errorMessages.ErrorMessagesInterface;
 import org.telegramBotStructure.adminFunctions.messages.templates.executedMessages.AdminExecutedMessagesInterface;
+import org.telegramBotStructure.entity.Homework;
+import org.telegramBotStructure.entity.MaiGroup;
+import org.telegramBotStructure.entity.Subject;
 import org.telegramBotStructure.entity.User;
 import org.telegramBotStructure.userFunctions.messages.handler.UserMessageHandler;
+
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
@@ -31,6 +37,7 @@ public class SendMessageToAdminImpl implements SendMessageToAdmin {
     private final AdminStateHandlerInterface adminStateHandlerInterface;
 
     private final AdminDatabaseActionImpl adminDatabaseActionImpl;
+    private final AdminButtons adminButtons;
 
 
     @Override
@@ -140,19 +147,76 @@ public class SendMessageToAdminImpl implements SendMessageToAdmin {
     }
 
     @Override
+    public void adminHomeworkHandler(CallbackQuery callbackQuery, Message message)
+    {
+        if(callbackQuery != null && message == null) {
+            String[] parts = callbackQuery.getData().split("_");
+            AdminState state = adminStateHandlerInterface.getAdminState(message.getChatId());
+            state.setSubject(parts[1]);
+            adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.WAITING_HOMEWORK_ADD);
+        }
+        else if(message != null && callbackQuery == null) {
+            String homeworkText = message.getText();
+            AdminState state = adminStateHandlerInterface.getAdminState(message.getChatId());
+            String subjectName = state.getSubject();
+
+            User user = adminDatabaseActionImpl.getCurrentUser(message.getChatId());
+
+            Subject subject = adminDatabaseActionImpl.getSubject(subjectName, user.getMaiGroup().getGroup());
+
+            Homework homework = new Homework(homeworkText, subject);
+
+            adminDatabaseActionImpl.setHomework(homework);
+
+            //добавление рассылки
+            for (User user1 : user.getMaiGroup().getUsers()) {
+                sendMailingAllUsersToGroupAboutHomeworkAdded(user1, subject.getSubjectName());
+            }
+        }
+    }
+
+    @Override
     public void adminHomeworkHandler(CallbackQuery callbackQuery, String[] parts)
     {
-        if(parts[1].equals("Добавить"))
-        {
-
+        try {
+            MaiGroup group = adminDatabaseActionImpl.getCurrentUser(callbackQuery.getFrom().getId()).getMaiGroup();
+            Set<Subject> subjects = group.getSubjects();
+            if(parts[1].equals("Добавить"))
+            {
+                if(subjects.isEmpty()) telegram().execute(
+                        errorMessagesInterface.sendAddNullSubjectsMessage(callbackQuery.getFrom().getId())
+                );
+                else telegram().execute(
+                        adminButtons.setSubjectButtons(
+                                callbackQuery.getFrom().getId(),
+                                callbackQuery.getMessage().getMessageId(),
+                                subjects,
+                                "ДобавитьДЗ"
+                        )
+                );
+            }
+            else if(parts[1].equals("Удалить"))
+            {
+                if(subjects.isEmpty()) telegram().execute(
+                        errorMessagesInterface.sendRemoveNullSubjectsMessage(callbackQuery.getFrom().getId())
+                );
+                else telegram().execute(
+                        adminButtons.setSubjectButtons(
+                                callbackQuery.getFrom().getId(),
+                                callbackQuery.getMessage().getMessageId(),
+                                subjects,
+                                "УдалитьДЗ"
+                        )
+                );
+            }
+            else if(parts[1].equals("Посмотреть"))
+            {
+                userMessageHandler.setSubjects(callbackQuery);
+            }
         }
-        else if(parts[1].equals("Удалить"))
+        catch (TelegramApiException e)
         {
-
-        }
-        else if(parts[1].equals("Посмотреть"))
-        {
-            userMessageHandler.setSubjects(callbackQuery);
+            e.printStackTrace();
         }
     }
 
