@@ -1,12 +1,13 @@
 package org.telegramBotStructure.adminFunctions.databaseActions;
 
 import org.telegramBotStructure.adminFunctions.adminState.AdminState;
+import org.telegramBotStructure.adminFunctions.adminState.AdminStateData;
 import org.telegramBotStructure.entity.*;
 
 import java.util.List;
 
 public interface AdminDatabaseAction {
-    public Weekday getCurrentWeekday(AdminState adminState);
+    public Weekday getCurrentWeekday(AdminStateData adminState);
     public MaiGroup getCurrentGroup(long chatId);
     public User getCurrentUser(long chatId);
     public Subject getSubject(String subject, String group);

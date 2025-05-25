@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.telegramBotStructure.DatabaseDAO.DatabaseMethods;
 import org.telegramBotStructure.adminFunctions.adminState.AdminState;
+import org.telegramBotStructure.adminFunctions.adminState.AdminStateData;
 import org.telegramBotStructure.entity.*;
 
 import java.util.*;
@@ -18,7 +19,7 @@ public class AdminDatabaseActionImpl implements AdminDatabaseAction {
     private final DatabaseMethods databaseMethods;
 
     @Override
-    public Weekday getCurrentWeekday(AdminState adminState) {
+    public Weekday getCurrentWeekday(AdminStateData adminState) {
         return databaseMethods.getWeekday(adminState.getDay());
     }
 

@@ -11,7 +11,7 @@ public class UserErrorMessages implements UserErrorMessagesInterface{
     public SendMessage sendNullSubjectsMessage(long chatId)
     {
         String text = "Для вашей группы не добавлено никаких предметов, " +
-                "обратитесь к своему старосте чтобы он добавил предметы";
+                "обратитесь к своему старосте чтобы он добавил расписание";
 
         return SendMessage.builder().chatId(chatId).text(text).build();
     }
@@ -19,8 +19,7 @@ public class UserErrorMessages implements UserErrorMessagesInterface{
     @Override
     public SendMessage sendNullMailingMessage(long chatId)
     {
-        String text = "Для вашей группы не добавлено никаких рассылок, " +
-                "обратитесь к своему старосте чтобы он добавил предметы";
+        String text = "Для вашей группы не добавлено никаких рассылок";
 
         return SendMessage.builder().chatId(chatId).text(text).build();
     }
@@ -28,7 +27,7 @@ public class UserErrorMessages implements UserErrorMessagesInterface{
     public SendMessage sendNullHomeworkMessage(long chatId)
     {
         String text = "Для вашей группы не добавлено никаких домашних заданий по выбранному предмету, " +
-                "обратитесь к своему старосте чтобы он добавил предметы";
+                "обратитесь к своему старосте чтобы он добавил расписание";
 
         return SendMessage.builder().chatId(chatId).text(text).build();
     }

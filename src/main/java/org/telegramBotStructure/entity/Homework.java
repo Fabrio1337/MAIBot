@@ -30,13 +30,12 @@ public class Homework {
 
     public Homework() {}
 
-    public Homework(String homework, Subject subject) {
+    public Homework(String homework) {
         this.homework = homework;
-        this.subject = subject;
     }
 
     @Override
     public String toString() {
-        return "Домашнее задание='" + homework + "\n";
+        return "Домашнее задание: " + homework + "\n";
     }
 }

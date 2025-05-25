@@ -105,7 +105,7 @@ public class DatabaseMethodsImplTest {
 
         // Создаем домашнее задание
         String homeworkText = "Реализовать алгоритм сортировки";
-        Homework homework = new Homework(homeworkText, subject);
+        Homework homework = new Homework(homeworkText);
         databaseMethods.setHomework(homework);
 
         // Проверяем получение домашнего задания по предмету
@@ -222,8 +222,8 @@ public class DatabaseMethodsImplTest {
         session.flush();
 
         // Создаем несколько домашних заданий для одного предмета
-        Homework homework1 = new Homework("Задание 1 по информатике", subject);
-        Homework homework2 = new Homework("Задание 2 по информатике", subject);
+        Homework homework1 = new Homework("Задание 1 по информатике");
+        Homework homework2 = new Homework("Задание 2 по информатике");
 
         databaseMethods.setHomework(homework1);
         databaseMethods.setHomework(homework2);

@@ -224,7 +224,12 @@ public class DatabaseMethodsImpl implements DatabaseMethods{
     @Override
     public void setHomework(Homework homework) {
         Session session = sessionFactory.getCurrentSession();
-        session.merge(homework);
+
+        Subject managedSubject = session.merge(homework.getSubject());
+
+        managedSubject.addHomework(homework);
+
+        session.persist(homework);
     }
 
     @Override

@@ -9,13 +9,4 @@ public enum AdminState {
     WAITING_HOMEWORK_ADD,   // Ожидание ввода для добавления ДЗ
     WAITING_INFORMATION_ADD, // Ожидание ввода для добавления информации
     WAITING_SUBJECT_ADD;// Ожидание ввода для добавления информации
-
-    @Getter
-    @Setter
-    private String day;
-
-    @Getter
-    @Setter
-    private String subject;
-
 }

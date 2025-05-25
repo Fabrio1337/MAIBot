@@ -1,7 +1,8 @@
 package org.telegramBotStructure.adminFunctions.adminState;
 
 public interface AdminStateHandlerInterface {
-    public AdminState getAdminState(Long chatId);
-    public void setAdminState(Long chatId, AdminState state);
-    public void resetAdminState(Long chatId);
+    AdminStateData getAdminState(Long chatId);
+    void setAdminState(Long chatId, AdminState state);
+    void setAdminStateData(Long chatId, AdminStateData data);
+    void resetAdminState(Long chatId);
 }

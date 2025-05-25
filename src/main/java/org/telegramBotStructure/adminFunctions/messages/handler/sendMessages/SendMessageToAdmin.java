@@ -3,13 +3,14 @@ package org.telegramBotStructure.adminFunctions.messages.handler.sendMessages;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegramBotStructure.adminFunctions.adminState.AdminState;
+import org.telegramBotStructure.adminFunctions.adminState.AdminStateData;
 import org.telegramBotStructure.entity.User;
 
 public interface SendMessageToAdmin {
     public void callback(CallbackQuery callbackQuery);
     public void message(Message message);
     public void sendStartMessage(Message message);
-    public void daysHandler(Message message, AdminState state);
+    public void daysHandler(Message message, AdminStateData state);
     public void adminChoise(CallbackQuery callbackQuery, String text);
     public void adminScheduleHandler(CallbackQuery callbackQuery, String[] parts);
     public void dayHandler(CallbackQuery callbackQuery, String[] parts);

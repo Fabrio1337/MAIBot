@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 import org.telegramBotStructure.adminFunctions.adminState.AdminState;
+import org.telegramBotStructure.adminFunctions.adminState.AdminStateData;
 import org.telegramBotStructure.adminFunctions.adminState.AdminStateHandlerInterface;
 import org.telegramBotStructure.adminFunctions.buttons.AdminButtonInterface;
 import org.telegramBotStructure.adminFunctions.buttons.AdminButtons;
@@ -59,7 +60,7 @@ public class SendMessageToAdminImpl implements SendMessageToAdmin {
     }
 
     @Override
-    public void daysHandler(Message message, AdminState state)
+    public void daysHandler(Message message, AdminStateData state)
     {
         try
         {
@@ -151,20 +152,21 @@ public class SendMessageToAdminImpl implements SendMessageToAdmin {
     {
         if(callbackQuery != null && message == null) {
             String[] parts = callbackQuery.getData().split("_");
-            AdminState state = adminStateHandlerInterface.getAdminState(message.getChatId());
+            AdminStateData state = adminStateHandlerInterface.getAdminState(callbackQuery.getMessage().getChatId());
             state.setSubject(parts[1]);
-            adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.WAITING_HOMEWORK_ADD);
+            adminStateHandlerInterface.setAdminState(callbackQuery.getMessage().getChatId(), AdminState.WAITING_HOMEWORK_ADD);
         }
         else if(message != null && callbackQuery == null) {
             String homeworkText = message.getText();
-            AdminState state = adminStateHandlerInterface.getAdminState(message.getChatId());
+            AdminStateData state = adminStateHandlerInterface.getAdminState(message.getChatId());
             String subjectName = state.getSubject();
 
             User user = adminDatabaseActionImpl.getCurrentUser(message.getChatId());
 
             Subject subject = adminDatabaseActionImpl.getSubject(subjectName, user.getMaiGroup().getGroup());
 
-            Homework homework = new Homework(homeworkText, subject);
+            Homework homework = new Homework(homeworkText);
+            homework.setSubject(subject);
 
             adminDatabaseActionImpl.setHomework(homework);
 

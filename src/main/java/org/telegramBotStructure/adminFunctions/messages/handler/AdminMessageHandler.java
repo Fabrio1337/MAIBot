@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
+import org.telegramBotStructure.adminFunctions.adminState.AdminStateData;
 import org.telegramBotStructure.adminFunctions.databaseActions.AdminDatabaseAction;
 import org.telegramBotStructure.adminFunctions.adminState.AdminState;
 import org.telegramBotStructure.adminFunctions.adminState.AdminStateHandlerInterface;
@@ -28,6 +29,8 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
     private final AdminDatabaseAction adminDatabaseAction;
 
     private final SendMessageToAdmin sendMessageToAdmin;
+
+    private AdminStateData adminStateData;
 
 
     @Override
@@ -61,9 +64,9 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
     @Override
     @Transactional
     public void message(Message message) {
-        AdminState currentState = adminStateHandlerInterface.getAdminState(message.getChatId());
+        adminStateData = adminStateHandlerInterface.getAdminState(message.getChatId());
 
-        switch (currentState) {
+        switch (adminStateData.getState()) {
             case WAITING_SCHEDULE_ADD:
                 daysHandler(message);
                 adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.DEFAULT);
@@ -111,16 +114,16 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
 
     @Override
     public void daysHandler(Message message) {
-        AdminState state = adminStateHandlerInterface.getAdminState(message.getChatId());
+        adminStateData = adminStateHandlerInterface.getAdminState(message.getChatId());
         adminStateHandlerInterface.setAdminState(message.getChatId(), AdminState.WAITING_SCHEDULE_ADD);
         String[] lines = message.getText().split("\\r?\\n");
-        Weekday weekday = adminDatabaseAction.getCurrentWeekday(state);
+        Weekday weekday = adminDatabaseAction.getCurrentWeekday(adminStateData);
         MaiGroup maiGroup = adminDatabaseAction.getCurrentUser(message.getChatId()).getMaiGroup();
         int count = 0;
         boolean addSchedule = true;
         boolean isAdded = false;
         if (lines.length > 7) {
-            sendMessageToAdmin.daysHandler(message, state);
+            sendMessageToAdmin.daysHandler(message, adminStateData);
         } else {
             for (String line : lines) {
                 String content = line.replaceFirst("^\\d+\\.\\s*", "");
@@ -165,7 +168,7 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
                 sendMessageToAdmin.successAddSchedule(message, weekday.getDay());
                 sendMessageToAdmin.sendStartMessage(message);
             } else {
-                sendMessageToAdmin.daysHandler(message, state);
+                sendMessageToAdmin.daysHandler(message, adminStateData);
             }
         }
 
@@ -233,9 +236,10 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
     public void dayHandler(CallbackQuery callbackQuery)
     {
         String[] parts = callbackQuery.getData().split("_");
-        AdminState state = AdminState.WAITING_SCHEDULE_ADD;
-        state.setDay(parts[1]);
-        adminStateHandlerInterface.setAdminState(callbackQuery.getFrom().getId(),state);
+        adminStateData = adminStateHandlerInterface.getAdminState(callbackQuery.getMessage().getChatId());
+        adminStateData.setState(AdminState.WAITING_SCHEDULE_ADD);
+        adminStateData.setDay(parts[1]);
+        adminStateHandlerInterface.setAdminState(callbackQuery.getFrom().getId(),AdminState.WAITING_SCHEDULE_ADD);
         sendMessageToAdmin.dayHandler(callbackQuery, parts);
     }
 
@@ -312,7 +316,8 @@ public class AdminMessageHandler implements AdminMessageHandlerInterface {
             }
             if(subjectGroup != null)
             {
-                Homework homeworkGroup = new Homework(homework, subjectGroup);
+                Homework homeworkGroup = new Homework(homework);
+                homeworkGroup.setSubject(subjectGroup);
                 adminDatabaseAction.setHomework(homeworkGroup);
                 sendMessageToAdmin.sendSuccessAddHomework(message);
                 for (User user1 : user.getMaiGroup().getUsers()) {
